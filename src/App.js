@@ -2,6 +2,29 @@ import { useState } from 'react';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import './App.css';
 
+function getTheme(themeName) {
+	let result = {
+		name: themeName,
+		pieces: {
+			light: {},
+			dark: {}
+		},
+		bakkgroundColor: null
+	};
+	
+	// pieces
+	for (let color of ['light', 'dark'])
+		for (let piece of ['king', 'queen', 'bishop', 'knight', 'rook', 'pawn'])
+			result.pieces[color][piece] = require('./img/' + piece + '-' + themeName + '-' + color + '.png');
+	
+	// background color
+	switch (themeName) {
+		case 'default': result.backgroundColor = 'transparent'; break;
+		case 'dark': result.backgroundColor = 'dimgray'; break;
+		default: result.backgroundColor = 'red'; break;
+	}
+}
+
 function Square({ value, onSquareClick, selectedPiece, index }) {
 	const style = {};
 	
@@ -27,7 +50,7 @@ function BoardRow({ index, onSquareClick, squares, selectedPiece }) {
 	);
 }
 
-function Board() {
+function Board({ theme }) {
 	const [squares, setSquares] = useState(Array(64).fill(null));
 	const [selectedPiece, setSelectedPiece] = useState(null);
 	const [whiteIsNext, setWhiteIsNext] = useState(true);
@@ -88,13 +111,14 @@ function Board() {
 }
 
 function App() {
+	const theme = getTheme('dark');
 	return (
 		<HelmetProvider>
-			<div className="App">
+			<div className="App" backgroundColor={theme.backgroundColor}>
 				<Helmet>
 					<title>Chess No. 25</title>
 				</Helmet>
-				<Board />
+				<Board theme={theme}/>
 			</div>
 		</HelmetProvider>
 	);
