@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { Theme, getImage } from './Theme'
+import * as gameLogic from './gameLogic.js'
 import './App.css';
 
 function Square({ value, onSquareClick, selectedPiece, index }) {
@@ -68,7 +69,7 @@ function Board({ theme, data }) {
 			console.log("selecting piece");
 			setSelectedPiece(index);
 		}
-		else if (squares[index] === null && selectedPiece !== null) {
+		else if (gameLogic.canBeMoved(selectedPiece, index, squares)) {
 			console.log("moving piece");
 			nextSquares[selectedPiece] = null;
 			nextSquares[index] = squares[selectedPiece];
@@ -109,23 +110,22 @@ function setupData(theme) {
 	this.type = "chessdata";
 	this.squares = Array(64).fill(null);
 	this.setSquares = (s) => this.squares = s;
-
-	this.squares[0] = getImage(theme.getPiece('dark', 'rook'));
-	this.squares[1] = getImage(theme.getPiece('dark', 'knight'));
-	this.squares[2] = getImage(theme.getPiece('dark', 'bishop'));
-	this.squares[3] = getImage(theme.getPiece('dark', 'queen'));
-	this.squares[4] = getImage(theme.getPiece('dark', 'king'));
-	this.squares[5] = getImage(theme.getPiece('dark', 'bishop'));
-	this.squares[6] = getImage(theme.getPiece('dark', 'knight'));
-	this.squares[7] = getImage(theme.getPiece('dark', 'rook'));
-	this.squares[56+0] = getImage(theme.getPiece('light', 'rook'));
-	this.squares[56+1] = getImage(theme.getPiece('light', 'knight'));
-	this.squares[56+2] = getImage(theme.getPiece('light', 'bishop'));
-	this.squares[56+3] = getImage(theme.getPiece('light', 'queen'));
-	this.squares[56+4] = getImage(theme.getPiece('light', 'king'));
-	this.squares[56+5] = getImage(theme.getPiece('light', 'bishop'));
-	this.squares[56+6] = getImage(theme.getPiece('light', 'knight'));
-	this.squares[56+7] = getImage(theme.getPiece('light', 'rook'));
+	
+	for (let color of ['light', 'dark']) {
+		let row = Array(8).fill(null);
+		row[0] = getImage(theme.getPiece(color, 'rook'));
+		row[1] = getImage(theme.getPiece(color, 'knight'));
+		row[2] = getImage(theme.getPiece(color, 'bishop'));
+		row[3] = getImage(theme.getPiece(color, 'queen'));
+		row[4] = getImage(theme.getPiece(color, 'king'));
+		row[5] = getImage(theme.getPiece(color, 'bishop'));
+		row[6] = getImage(theme.getPiece(color, 'knight'));
+		row[7] = getImage(theme.getPiece(color, 'rook'));
+		for (let i = 0; i < 8; i++) {
+			this.squares[(color === 'dark') ? i : (i + 56)] = row[i];
+			this.squares[(color === 'dark') ? (i + 8) : (i + 48)] = getImage(theme.getPiece(color, 'pawn'));
+		}
+	}
 }
 
 export { setupData };
