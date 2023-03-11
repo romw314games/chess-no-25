@@ -1,35 +1,18 @@
 import { useState } from 'react';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
+import { Theme, getImage } from './Theme'
 import './App.css';
 
-function getTheme(themeName) {
-	let result = {
-		name: themeName,
-		pieces: {
-			light: {},
-			dark: {}
-		},
-		bakkgroundColor: null
+function Square({ value, onSquareClick, selectedPiece, index }) {
+	const isDark = ((Math.floor(index / 8) % 2) !== (index % 2));
+	const style = {
+		backgroundColor: isDark ? "lightgray" : "transparent"
 	};
 	
-	// pieces
-	for (let color of ['light', 'dark'])
-		for (let piece of ['king', 'queen', 'bishop', 'knight', 'rook', 'pawn'])
-			result.pieces[color][piece] = require('./img/' + piece + '-' + themeName + '-' + color + '.png');
-	
-	// background color
-	switch (themeName) {
-		case 'default': result.backgroundColor = 'transparent'; break;
-		case 'dark': result.backgroundColor = 'dimgray'; break;
-		default: result.backgroundColor = 'red'; break;
+	if (selectedPiece === index) {
+		style.backgroundColor = isDark ? "darkred" : "lightblue";
+		console.log(`piece${index}:selected`);
 	}
-}
-
-function Square({ value, onSquareClick, selectedPiece, index }) {
-	const style = {};
-	
-	if (selectedPiece === index)
-		style.backgroundColor = "lightblue";
 
 	return <button className="square" onClick={onSquareClick} style={style}>{value}</button>;
 }
@@ -50,13 +33,12 @@ function BoardRow({ index, onSquareClick, squares, selectedPiece }) {
 	);
 }
 
-function Board({ theme }) {
-	const [squares, setSquares] = useState(Array(64).fill(null));
+function Board({ theme, data }) {
+	const squares = data.squares;
+	const setSquares = data.setSquares;
 	const [selectedPiece, setSelectedPiece] = useState(null);
-	const [whiteIsNext, setWhiteIsNext] = useState(true);
-
-	squares[0] = '-';
-
+	const [lightIsNext, setLightIsNext] = useState(true);
+	
 	function handleClick(index) {
 		const nextSquares = squares.slice();
 		let logData = {
@@ -82,12 +64,11 @@ function Board({ theme }) {
 			console.log("unselecting piece");
 			setSelectedPiece(null);
 		}
-		else if (selectedPiece === null)
-			if (squares[index] !== null) {
-				console.log("selecting piece");
-				setSelectedPiece(index);
-			}
-		else if (squares[index] === null) {
+		else if (selectedPiece === null && squares[index] !== null) {
+			console.log("selecting piece");
+			setSelectedPiece(index);
+		}
+		else if (squares[index] === null && selectedPiece !== null) {
 			console.log("moving piece");
 			nextSquares[selectedPiece] = null;
 			nextSquares[index] = squares[selectedPiece];
@@ -110,18 +91,42 @@ function Board({ theme }) {
 	);
 }
 
-function App() {
-	const theme = getTheme('dark');
+function App({ setupData }) {
+	const theme = new Theme('default');
 	return (
 		<HelmetProvider>
-			<div className="App" backgroundColor={theme.backgroundColor}>
+			<div className="App" style={theme.style}>
 				<Helmet>
 					<title>Chess No. 25</title>
 				</Helmet>
-				<Board theme={theme}/>
+				<Board theme={theme} data={setupData} />
 			</div>
 		</HelmetProvider>
 	);
 }
 
+function setupData(theme) {
+	this.type = "chessdata";
+	this.squares = Array(64).fill(null);
+	this.setSquares = (s) => this.squares = s;
+
+	this.squares[0] = getImage(theme.getPiece('dark', 'rook'));
+	this.squares[1] = getImage(theme.getPiece('dark', 'knight'));
+	this.squares[2] = getImage(theme.getPiece('dark', 'bishop'));
+	this.squares[3] = getImage(theme.getPiece('dark', 'queen'));
+	this.squares[4] = getImage(theme.getPiece('dark', 'king'));
+	this.squares[5] = getImage(theme.getPiece('dark', 'bishop'));
+	this.squares[6] = getImage(theme.getPiece('dark', 'knight'));
+	this.squares[7] = getImage(theme.getPiece('dark', 'rook'));
+	this.squares[56+0] = getImage(theme.getPiece('light', 'rook'));
+	this.squares[56+1] = getImage(theme.getPiece('light', 'knight'));
+	this.squares[56+2] = getImage(theme.getPiece('light', 'bishop'));
+	this.squares[56+3] = getImage(theme.getPiece('light', 'queen'));
+	this.squares[56+4] = getImage(theme.getPiece('light', 'king'));
+	this.squares[56+5] = getImage(theme.getPiece('light', 'bishop'));
+	this.squares[56+6] = getImage(theme.getPiece('light', 'knight'));
+	this.squares[56+7] = getImage(theme.getPiece('light', 'rook'));
+}
+
+export { setupData };
 export default App;
