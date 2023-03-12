@@ -63,7 +63,6 @@ jobs:
         uses: actions/upload-pages-artifact@v1
         with:
           path: ./build
-          name: react-web-build
 
   # Deployment jobs
   deploy-gh-pages:
