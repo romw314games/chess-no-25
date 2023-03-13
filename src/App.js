@@ -34,11 +34,15 @@ function BoardRow({ index, onSquareClick, squares, selectedPiece }) {
 	);
 }
 
-function Board({ theme, data }) {
-	const squares = data.squares;
-	const setSquares = data.setSquares;
+function Board({ theme, data, onPlay }) {
+	
+	console.log('render data write', data);
+
+	const history = data.history;
+	const setHistory = data.setHistory;
 	const [selectedPiece, setSelectedPiece] = useState(null);
 	const [lightIsNext, setLightIsNext] = useState(true);
+	const squares = data.history[data.currentMove].slice();
 	
 	function handleClick(index) {
 		const nextSquares = squares.slice();
@@ -58,8 +62,8 @@ function Board({ theme, data }) {
 				_2_move: Boolean(squares[index] !== null)
 			}
 		};
-		logData.conditions.select &= !logData.unselect;
-		logData.conditions.move &= logData.select;
+		logData.conditions._1_select &= !logData.conditions._0_unselect;
+		logData.conditions._2_move &= logData.conditions._1_select;
 		console.log("board click update", logData);
 		if (selectedPiece === index) {
 			console.log("unselecting piece");
@@ -73,9 +77,9 @@ function Board({ theme, data }) {
 			console.log("moving piece");
 			nextSquares[selectedPiece] = null;
 			nextSquares[index] = squares[selectedPiece];
+			onPlay(selectedPiece, index, nextSquares);
 			setSelectedPiece(null);
 		}
-		setSquares(nextSquares);
 	}
 
 	return (
@@ -92,6 +96,32 @@ function Board({ theme, data }) {
 	);
 }
 
+function Game({ theme, data }) {
+	const reRender = useState(0)[1];
+
+	function handlePlay(from, to, nextSquares) {
+		const nextHistory = [...data.history.slice(0, data.currentMove + 1), nextSquares];
+		data.setHistory(nextHistory);
+		data.setCurrentMove(nextHistory.length - 1);
+		reRender(Math.random());
+	}
+
+	function undoMove() {
+		const nextHistory = data.history;
+		nextHistory.pop();
+		data.setHistory(nextHistory);
+		data.setCurrentMove(data.currentMove - 1);
+		reRender(Math.random());
+	}
+
+	return (
+		<div className="game" style={theme.game.style}>
+			<Board theme={theme} data={data} onPlay={handlePlay} />
+			<button className="menu-button" onClick={undoMove} disabled={data.history.length <= 1}>Undo</button>
+		</div>
+	);
+}
+
 function App({ setupData }) {
 	const theme = new Theme('default');
 	return (
@@ -100,7 +130,7 @@ function App({ setupData }) {
 				<Helmet>
 					<title>Chess No. 25</title>
 				</Helmet>
-				<Board theme={theme} data={setupData} />
+				<Game theme={theme} data={setupData} />
 			</div>
 		</HelmetProvider>
 	);
@@ -108,8 +138,10 @@ function App({ setupData }) {
 
 function setupData(theme) {
 	this.type = "chessdata";
-	this.squares = Array(64).fill(null);
-	this.setSquares = (s) => this.squares = s;
+	this.history = [Array(64).fill(null)];
+	this.setHistory = (s) => this.history = s;
+	this.currentMove = 0;
+	this.setCurrentMove = (s) => this.currentMove = s;
 	
 	for (let color of ['light', 'dark']) {
 		let row = Array(8).fill(null);
@@ -122,8 +154,8 @@ function setupData(theme) {
 		row[6] = getImage(theme.getPiece(color, 'knight'));
 		row[7] = getImage(theme.getPiece(color, 'rook'));
 		for (let i = 0; i < 8; i++) {
-			this.squares[(color === 'dark') ? i : (i + 56)] = row[i];
-			this.squares[(color === 'dark') ? (i + 8) : (i + 48)] = getImage(theme.getPiece(color, 'pawn'));
+			this.history[0][(color === 'dark') ? i : (i + 56)] = row[i];
+			this.history[0][(color === 'dark') ? (i + 8) : (i + 48)] = getImage(theme.getPiece(color, 'pawn'));
 		}
 	}
 }

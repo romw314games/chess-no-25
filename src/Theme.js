@@ -9,11 +9,14 @@ function Theme(themeName) {
 	this.pieces = {
 		light: {},
 		dark: {}
-	}
+	};
 	this.getPiece = (isLight, name) => {
 		let player = (isLight === true || isLight === 'light') ? 'light' : 'dark';
 		return this.pieces[player][name];
-	}
+	};
+	this.game = {
+		style: {}
+	};
 	
 	try {
 		// pieces
