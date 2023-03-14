@@ -8,9 +8,7 @@ import reportWebVitals from './reportWebVitals';
 const data = new setupData(new Theme('default'));
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-	<React.StrictMode>
-		<App setupData={data} />
-	</React.StrictMode>
+	<App setupData={data} />
 );
 
 // If you want to start measuring performance in your app, pass a function

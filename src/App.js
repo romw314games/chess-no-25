@@ -21,7 +21,7 @@ function Square({ value, onSquareClick, selectedPiece, index }) {
 		console.log(`piece${index}:selected`);
 	}
 
-	return <button className="square" onClick={onSquareClick} style={style}>{value}</button>;
+	return <button className="square" onClick={onSquareClick} style={style}>{getImage(value)}</button>;
 }
 
 function BoardRow({ index, onSquareClick, squares, selectedPiece }) {
@@ -41,7 +41,6 @@ function BoardRow({ index, onSquareClick, squares, selectedPiece }) {
 }
 
 function Board({ theme, data, onPlay }) {
-	
 	console.log('render data write', data);
 
 	const history = data.history;
@@ -104,13 +103,38 @@ function Board({ theme, data, onPlay }) {
 
 function Game({ theme, data }) {
 	const reRender = useState(0)[1];
+	const [promoting, setPromoting] = useState(null);
 
-	function handlePlay(from, to, nextSquares) {
-		const nextHistory = [...data.history.slice(0, data.currentMove + 1), nextSquares];
+	function handlePlay(from, to, nextSquares, overwrite) {
+		for (let i = 0; i < nextSquares.length; i++) {
+//			console.log(`light promotion test testing piece at ${i}`, nextSquares[i]);
+			if (nextSquares[i] && ((i < 8 && nextSquares[i].fullName === 'light pawn') || (i > 56 && nextSquares[i].fullName === 'dark pawn'))) {
+				console.log('promotion data write', data);
+				setPromoting(i);
+			}
+		}
+		let nextHistory;
+		if (overwrite) {
+			nextHistory = data.history.slice();
+			nextHistory[data.currentMove] = nextSquares;
+		}
+		else nextHistory = [...data.history.slice(0, data.currentMove + 1), nextSquares];
 		data.setHistory(nextHistory);
 		data.setCurrentMove(nextHistory.length - 1);
 		reRender(Math.random());
 	}
+
+	function promotePiece(index, piece) {
+		console.log(`promoting pawn on ${index} to ${piece}`);
+		const nextSquares = data.history[data.currentMove].slice();
+		nextSquares[index] = theme.getPiece(index < 8, piece);
+		handlePlay(index, index, nextSquares, true);
+		setPromoting(null);
+	}
+
+	const promotions = {};
+	for (let promotion of ['queen', 'rook', 'bishop', 'knight'])
+		promotions[promotion] = () => promotePiece(promoting, promotion);
 
 	function undoMove() {
 		const nextHistory = data.history;
@@ -124,18 +148,29 @@ function Game({ theme, data }) {
 		<div className="game" style={theme.game.style}>
 			<Board theme={theme} data={data} onPlay={handlePlay} />
 			<Button className="menu-button" onClick={undoMove} variant="contained" color="primary" disabled={data.history.length <= 1}>Undo</Button>
+			<Dialog open={Boolean(promoting)}>
+				<DialogTitle>Promotion</DialogTitle>
+				<DialogContent><DialogContentText>Please select piece:</DialogContentText></DialogContent>
+				<DialogActions>
+					<Button color="primary" onClick={promotions.queen}>Queen</Button>
+					<Button color="primary" onClick={promotions.rook}>Rook</Button>
+					<Button color="primary" onClick={promotions.bishop}>Bishop</Button>
+					<Button color="primary" onClick={promotions.knight}>Knight</Button>
+				</DialogActions>
+			</Dialog>
 		</div>
 	);
 }
 
 function App({ setupData }) {
-	const theme = new Theme('default');
+	const theme = setupData.theme;
 	return (
 		<HelmetProvider>
 			<div className="App" style={theme.style}>
 				<Helmet>
 					<title>Chess No. 25</title>
 				</Helmet>
+				<h1>Chess No. 25</h1>
 				<Game theme={theme} data={setupData} />
 			</div>
 		</HelmetProvider>
@@ -148,20 +183,21 @@ function setupData(theme) {
 	this.setHistory = (s) => this.history = s;
 	this.currentMove = 0;
 	this.setCurrentMove = (s) => this.currentMove = s;
+	this.theme = theme;
 	
 	for (let color of ['light', 'dark']) {
 		let row = Array(8).fill(null);
-		row[0] = getImage(theme.getPiece(color, 'rook'));
-		row[1] = getImage(theme.getPiece(color, 'knight'));
-		row[2] = getImage(theme.getPiece(color, 'bishop'));
-		row[3] = getImage(theme.getPiece(color, 'queen'));
-		row[4] = getImage(theme.getPiece(color, 'king'));
-		row[5] = getImage(theme.getPiece(color, 'bishop'));
-		row[6] = getImage(theme.getPiece(color, 'knight'));
-		row[7] = getImage(theme.getPiece(color, 'rook'));
+		row[0] = theme.getPiece(color, 'rook');
+		row[1] = theme.getPiece(color, 'knight');
+		row[2] = theme.getPiece(color, 'bishop');
+		row[3] = theme.getPiece(color, 'queen');
+		row[4] = theme.getPiece(color, 'king');
+		row[5] = theme.getPiece(color, 'bishop');
+		row[6] = theme.getPiece(color, 'knight');
+		row[7] = theme.getPiece(color, 'rook');
 		for (let i = 0; i < 8; i++) {
 			this.history[0][(color === 'dark') ? i : (i + 56)] = row[i];
-			this.history[0][(color === 'dark') ? (i + 8) : (i + 48)] = getImage(theme.getPiece(color, 'pawn'));
+			this.history[0][(color === 'dark') ? (i + 8) : (i + 48)] = theme.getPiece(color, 'pawn');
 		}
 	}
 }

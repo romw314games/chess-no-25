@@ -1,7 +1,11 @@
 import './Theme.css';
 
 function getImage(piece) {
-	return <img className="square-value" src={piece.image} alt={piece.fullName} />;
+	return piece ? <img className="square-value" src={piece.image} alt={piece.fullName} /> : piece;
+}
+
+function pieceIs(piece, color, name) {
+	return piece && piece.color === color && piece.name === name;
 }
 
 function Theme(themeName) {
@@ -44,4 +48,4 @@ function Theme(themeName) {
 	return this;
 }
 
-export { Theme, getImage };
+export { Theme, getImage, pieceIs };
