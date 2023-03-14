@@ -3,6 +3,9 @@
 }
 .board {
 	margin: 100px;
+	margin-left: auto;
+	margin-right: auto;
+	display: table;
 }
 .board-row:after {
 	clear: both;
