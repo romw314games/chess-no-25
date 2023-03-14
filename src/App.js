@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import { Theme, getImage } from './Theme'
-import * as gameLogic from './gameLogic.js'
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import Dialog from '@material-ui/core/Dialog';
+import Button from '@material-ui/core/Button';
+import { Theme, getImage } from './Theme';
+import * as gameLogic from './gameLogic.js';
 import './App.css';
 
 function Square({ value, onSquareClick, selectedPiece, index }) {
@@ -117,7 +123,7 @@ function Game({ theme, data }) {
 	return (
 		<div className="game" style={theme.game.style}>
 			<Board theme={theme} data={data} onPlay={handlePlay} />
-			<button className="menu-button" onClick={undoMove} disabled={data.history.length <= 1}>Undo</button>
+			<Button className="menu-button" onClick={undoMove} variant="contained" color="primary" disabled={data.history.length <= 1}>Undo</Button>
 		</div>
 	);
 }
