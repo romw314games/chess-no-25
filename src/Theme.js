@@ -1,4 +1,5 @@
 import './Theme.css';
+import themes from './themes.json';
 
 function getImage(piece) {
 	return piece ? <img className="square-value" src={piece.image} alt={piece.fullName} /> : piece;
@@ -8,8 +9,9 @@ function pieceIs(piece, color, name) {
 	return piece && piece.color === color && piece.name === name;
 }
 
-function Theme(themeName) {
-	this.name = themeName;
+function Theme(themeId) {
+	const theme = themes.themes[themeId];
+	this.name = theme.name;
 	this.pieces = {
 		light: {},
 		dark: {}
@@ -18,34 +20,33 @@ function Theme(themeName) {
 		let player = (isLight === true || isLight === 'light') ? 'light' : 'dark';
 		return this.pieces[player][name];
 	};
-	this.game = {
+	this.game = theme.game ?? {
 		style: {}
 	};
-	
+	this.board = theme.board ?? {
+		style: {},
+	};
+	this.square = theme.square ?? {
+		lightColor: [ "transparent", "lightblue" ],
+		darkColor: [ "lightGray", "darkRed" ]
+	}
+	this.style = theme.style ?? {};
+
+	// pieces
 	try {
-		// pieces
 		for (let color of ['light', 'dark'])
 			for (let piece of ['king', 'queen', 'bishop', 'knight', 'rook', 'pawn'])
 				this.pieces[color][piece] = {
-					image: require('./img/' + piece + '-' + themeName + '-' + color + '.png'),
+					image: require('./img/' + piece + '-' + themeId + '-' + color + '.png'),
 					fullName: `${color} ${piece}`,
-					theme: themeName,
+					theme: themeId,
 					name: piece,
 					player: color
 				};
 	}
-	catch {
-		console.log(`pieces for theme '${themeName}' not found`)
+	catch (e) {
+		console.error(`couldn't find pieces for theme '${themeId}'`, `${e.name}: ${e.message}`);
 	}
-	
-	// background color
-	switch (themeName) {
-		case 'default': this.backgroundColor = 'transparent'; break;
-		case 'dark': this.backgroundColor = 'dimgray'; break;
-		default: this.backgroundColor = 'red'; break;
-	}
-
-	return this;
 }
 
 export { Theme, getImage, pieceIs };

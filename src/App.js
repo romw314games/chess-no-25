@@ -10,38 +10,46 @@ import { Theme, getImage } from './Theme';
 import * as gameLogic from './gameLogic.js';
 import './App.css';
 
-function Square({ value, onSquareClick, selectedPiece, index }) {
+function Square({ value, onSquareClick, selectedPiece, index, theme }) {
 	const isDark = ((Math.floor(index / 8) % 2) !== (index % 2));
+	const color = isDark ? theme.square.darkColor : theme.square.lightColor;
 	const style = {
-		backgroundColor: isDark ? "lightgray" : "transparent"
+		backgroundColor: color[Number(selectedPiece === index)]
 	};
-	
-	if (selectedPiece === index) {
-		style.backgroundColor = isDark ? "darkred" : "lightblue";
-		console.log(`piece${index}:selected`);
-	}
 
-	return <button className="square" onClick={onSquareClick} style={style}>{getImage(value)}</button>;
+	console.dlog(4, 'render square log', {
+		value: value,
+		onSquareClick: onSquareClick,
+		selectedPiece: selectedPiece,
+		index: index,
+		theme: theme,
+		global: global,
+		setGlobal: (n, v) => global[n] = v
+	});
+	
+	value = global.sqValue ? eval(global.sqValue) : getImage(value);
+
+	return <button className="square" onClick={onSquareClick} style={style}>{value}</button>;
 }
 
-function BoardRow({ index, onSquareClick, squares, selectedPiece }) {
+function BoardRow({ index, onSquareClick, squares, selectedPiece, theme }) {
 	index *= 8;
 	return (
 		<div className="board-row">
-			<Square value={squares[index]} onSquareClick={() => onSquareClick(index+0)} selectedPiece={selectedPiece} index={index} />
-			<Square value={squares[index+1]} onSquareClick={() => onSquareClick(index+1)} selectedPiece={selectedPiece} index={index+1} />
-			<Square value={squares[index+2]} onSquareClick={() => onSquareClick(index+2)} selectedPiece={selectedPiece} index={index+2} />
-			<Square value={squares[index+3]} onSquareClick={() => onSquareClick(index+3)} selectedPiece={selectedPiece} index={index+3} />
-			<Square value={squares[index+4]} onSquareClick={() => onSquareClick(index+4)} selectedPiece={selectedPiece} index={index+4} />
-			<Square value={squares[index+5]} onSquareClick={() => onSquareClick(index+5)} selectedPiece={selectedPiece} index={index+5} />
-			<Square value={squares[index+6]} onSquareClick={() => onSquareClick(index+6)} selectedPiece={selectedPiece} index={index+6} />
-			<Square value={squares[index+7]} onSquareClick={() => onSquareClick(index+7)} selectedPiece={selectedPiece} index={index+7} />
+			<Square value={squares[index]} onSquareClick={() => onSquareClick(index+0)} selectedPiece={selectedPiece} index={index} theme={theme} />
+			<Square value={squares[index+1]} onSquareClick={() => onSquareClick(index+1)} selectedPiece={selectedPiece} index={index+1} theme={theme} />
+			<Square value={squares[index+2]} onSquareClick={() => onSquareClick(index+2)} selectedPiece={selectedPiece} index={index+2} theme={theme} />
+			<Square value={squares[index+3]} onSquareClick={() => onSquareClick(index+3)} selectedPiece={selectedPiece} index={index+3} theme={theme} />
+			<Square value={squares[index+4]} onSquareClick={() => onSquareClick(index+4)} selectedPiece={selectedPiece} index={index+4} theme={theme} />
+			<Square value={squares[index+5]} onSquareClick={() => onSquareClick(index+5)} selectedPiece={selectedPiece} index={index+5} theme={theme} />
+			<Square value={squares[index+6]} onSquareClick={() => onSquareClick(index+6)} selectedPiece={selectedPiece} index={index+6} theme={theme} />
+			<Square value={squares[index+7]} onSquareClick={() => onSquareClick(index+7)} selectedPiece={selectedPiece} index={index+7} theme={theme} />
 		</div>
 	);
 }
 
 function Board({ theme, data, onPlay }) {
-	console.log('render data write', data);
+	console.dlog(3, 'render data write', data);
 
 	const history = data.history;
 	const setHistory = data.setHistory;
@@ -69,17 +77,17 @@ function Board({ theme, data, onPlay }) {
 		};
 		logData.conditions._1_select &= !logData.conditions._0_unselect;
 		logData.conditions._2_move &= logData.conditions._1_select;
-		console.log("board click update", logData);
+		console.dlog(1, "board click update", logData);
 		if (selectedPiece === index) {
-			console.log("unselecting piece");
+			console.dlog(2, "unselecting piece");
 			setSelectedPiece(null);
 		}
 		else if (selectedPiece === null && squares[index] !== null) {
-			console.log("selecting piece");
+			console.dlog(2, "selecting piece");
 			setSelectedPiece(index);
 		}
 		else if (gameLogic.canBeMoved(selectedPiece, index, squares)) {
-			console.log("moving piece");
+			console.dlog(2, "moving piece");
 			nextSquares[selectedPiece] = null;
 			nextSquares[index] = squares[selectedPiece];
 			onPlay(selectedPiece, index, nextSquares);
@@ -88,15 +96,15 @@ function Board({ theme, data, onPlay }) {
 	}
 
 	return (
-		<div className="board">
-			<BoardRow index='0' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} />
-			<BoardRow index='1' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} />
-			<BoardRow index='2' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} />
-			<BoardRow index='3' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} />
-			<BoardRow index='4' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} />
-			<BoardRow index='5' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} />
-			<BoardRow index='6' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} />
-			<BoardRow index='7' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} />
+		<div className="board" style={theme.board.style}>
+			<BoardRow index='0' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} theme={theme} />
+			<BoardRow index='1' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} theme={theme} />
+			<BoardRow index='2' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} theme={theme} />
+			<BoardRow index='3' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} theme={theme} />
+			<BoardRow index='4' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} theme={theme} />
+			<BoardRow index='5' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} theme={theme} />
+			<BoardRow index='6' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} theme={theme} />
+			<BoardRow index='7' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} theme={theme} />
 		</div>
 	);
 }
@@ -105,11 +113,16 @@ function Game({ theme, data }) {
 	const reRender = useState(0)[1];
 	const [promoting, setPromoting] = useState(null);
 
+	console.dlog = (level, ...args) => {
+		if (global.uselog && global.uselog >= level)
+			console.log(...args);
+	}
+
 	function handlePlay(from, to, nextSquares, overwrite) {
 		for (let i = 0; i < nextSquares.length; i++) {
-//			console.log(`light promotion test testing piece at ${i}`, nextSquares[i]);
-			if (nextSquares[i] && ((i < 8 && nextSquares[i].fullName === 'light pawn') || (i > 56 && nextSquares[i].fullName === 'dark pawn'))) {
-				console.log('promotion data write', data);
+			console.dlog(4, `light promotion test testing piece at ${i}`, nextSquares[i]);
+			if (nextSquares[i] && ((i < 8 && nextSquares[i].fullName === 'light pawn') || (i >= 56 && nextSquares[i].fullName === 'dark pawn'))) {
+				console.dlog(1, 'promotion data write', data);
 				setPromoting(i);
 			}
 		}
@@ -125,7 +138,7 @@ function Game({ theme, data }) {
 	}
 
 	function promotePiece(index, piece) {
-		console.log(`promoting pawn on ${index} to ${piece}`);
+		console.dlog(1, `promoting pawn on ${index} to ${piece}`);
 		const nextSquares = data.history[data.currentMove].slice();
 		nextSquares[index] = theme.getPiece(index < 8, piece);
 		handlePlay(index, index, nextSquares, true);
@@ -148,7 +161,7 @@ function Game({ theme, data }) {
 		<div className="game" style={theme.game.style}>
 			<Board theme={theme} data={data} onPlay={handlePlay} />
 			<Button className="menu-button" onClick={undoMove} variant="contained" color="primary" disabled={data.history.length <= 1}>Undo</Button>
-			<Dialog open={Boolean(promoting)}>
+			<Dialog open={Boolean(promoting) || (promoting === 0)}>
 				<DialogTitle>Promotion</DialogTitle>
 				<DialogContent><DialogContentText>Please select piece:</DialogContentText></DialogContent>
 				<DialogActions>
@@ -164,6 +177,47 @@ function Game({ theme, data }) {
 
 function App({ setupData }) {
 	const theme = setupData.theme;
+	const reRender = useState(0)[1];
+
+	global.reredner = global.rr = () => {
+		reRender(Math.random());
+		return 're-redner trigerred';
+	};
+	global.sqv = (s) => {
+		global.sqValue = s;
+		reRender(Math.random());
+		return `global.sqValue set to ${s} : re-render trigerred`;
+	}
+
+	function debugLogOption() {
+		console.log(`set debug logging:
+@
+	right-click on the object -> store object as global variable
+	call the stored object's function loglevel (eg. temp1.loglevel), it takes one parameter, the new log level.
+	log level null or any other falsy value is no debug logging (default).
+@
+@
+@
+set any global variable:
+@
+	right-click on the object -> store object as global variable
+	call the stored object's function setGlobal (eg. temp1.setGlobal), it takes two parameters - global name (eg. sqValue) and the new value (eg. index).
+@
+@
+@
+re-render the game:
+@
+	right-click on the object -> store object as global variable
+	call the stored object's function reRender (eg. temp1.reRender), it does not take parameters.
+@
+@
+@`, {
+			loglevel: (p) => global.uselog = p,
+			setGlobal: (n, v) => global[n] = v,
+			reRender: () => reRender(Math.random())
+		});
+	}
+
 	return (
 		<HelmetProvider>
 			<div className="App" style={theme.style}>
