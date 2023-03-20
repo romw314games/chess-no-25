@@ -27,8 +27,8 @@ function Theme(themeId) {
 		style: {},
 	};
 	this.square = theme.square ?? {
-		lightColor: [ "transparent", "lightblue" ],
-		darkColor: [ "lightGray", "darkRed" ]
+		lightColor: [ "transparent", "lightblue", "darkgray" ],
+		darkColor: [ "lightgray", "darkred", "dimgray" ]
 	}
 	this.style = theme.style ?? {};
 

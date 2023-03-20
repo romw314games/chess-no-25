@@ -10,11 +10,11 @@ import { Theme, getImage } from './Theme';
 import * as gameLogic from './gameLogic.js';
 import './App.css';
 
-function Square({ value, onSquareClick, selectedPiece, index, theme }) {
+function Square({ value, onSquareClick, selectedPiece, index, theme, squares }) {
 	const isDark = ((Math.floor(index / 8) % 2) !== (index % 2));
 	const color = isDark ? theme.square.darkColor : theme.square.lightColor;
 	const style = {
-		backgroundColor: color[Number(selectedPiece === index)]
+		backgroundColor: color[Number(selectedPiece === index) + (Number(selectedPiece && gameLogic.canBeMoved(selectedPiece, index, squares)) * 2)]
 	};
 
 	console.dlog(4, 'render square log', {
@@ -24,7 +24,8 @@ function Square({ value, onSquareClick, selectedPiece, index, theme }) {
 		index: index,
 		theme: theme,
 		global: global,
-		setGlobal: (n, v) => global[n] = v
+		setGlobal: (n, v) => global[n] = v,
+		squares: squares
 	});
 	
 	value = global.sqValue ? eval(global.sqValue) : getImage(value);
@@ -36,14 +37,14 @@ function BoardRow({ index, onSquareClick, squares, selectedPiece, theme }) {
 	index *= 8;
 	return (
 		<div className="board-row">
-			<Square value={squares[index]} onSquareClick={() => onSquareClick(index+0)} selectedPiece={selectedPiece} index={index} theme={theme} />
-			<Square value={squares[index+1]} onSquareClick={() => onSquareClick(index+1)} selectedPiece={selectedPiece} index={index+1} theme={theme} />
-			<Square value={squares[index+2]} onSquareClick={() => onSquareClick(index+2)} selectedPiece={selectedPiece} index={index+2} theme={theme} />
-			<Square value={squares[index+3]} onSquareClick={() => onSquareClick(index+3)} selectedPiece={selectedPiece} index={index+3} theme={theme} />
-			<Square value={squares[index+4]} onSquareClick={() => onSquareClick(index+4)} selectedPiece={selectedPiece} index={index+4} theme={theme} />
-			<Square value={squares[index+5]} onSquareClick={() => onSquareClick(index+5)} selectedPiece={selectedPiece} index={index+5} theme={theme} />
-			<Square value={squares[index+6]} onSquareClick={() => onSquareClick(index+6)} selectedPiece={selectedPiece} index={index+6} theme={theme} />
-			<Square value={squares[index+7]} onSquareClick={() => onSquareClick(index+7)} selectedPiece={selectedPiece} index={index+7} theme={theme} />
+			<Square value={squares[index]} onSquareClick={() => onSquareClick(index+0)} selectedPiece={selectedPiece} index={index} theme={theme} squares={squares} />
+			<Square value={squares[index+1]} onSquareClick={() => onSquareClick(index+1)} selectedPiece={selectedPiece} index={index+1} theme={theme} squares={squares} />
+			<Square value={squares[index+2]} onSquareClick={() => onSquareClick(index+2)} selectedPiece={selectedPiece} index={index+2} theme={theme} squares={squares} />
+			<Square value={squares[index+3]} onSquareClick={() => onSquareClick(index+3)} selectedPiece={selectedPiece} index={index+3} theme={theme} squares={squares} />
+			<Square value={squares[index+4]} onSquareClick={() => onSquareClick(index+4)} selectedPiece={selectedPiece} index={index+4} theme={theme} squares={squares} />
+			<Square value={squares[index+5]} onSquareClick={() => onSquareClick(index+5)} selectedPiece={selectedPiece} index={index+5} theme={theme} squares={squares} />
+			<Square value={squares[index+6]} onSquareClick={() => onSquareClick(index+6)} selectedPiece={selectedPiece} index={index+6} theme={theme} squares={squares} />
+			<Square value={squares[index+7]} onSquareClick={() => onSquareClick(index+7)} selectedPiece={selectedPiece} index={index+7} theme={theme} squares={squares} />
 		</div>
 	);
 }
