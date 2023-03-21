@@ -243,6 +243,10 @@ re-render the game:
 	);
 }
 
+function DefaultApp() {
+	return <App setupData={new setupData(new Theme('default'))} />;
+}
+
 function setupData(theme) {
 	this.type = "chessdata";
 	this.history = [Array(64).fill(null)];
@@ -268,5 +272,5 @@ function setupData(theme) {
 	}
 }
 
-export { setupData };
+export { setupData, DefaultApp };
 export default App;
