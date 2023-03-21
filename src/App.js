@@ -33,7 +33,7 @@ function Square({ value, onSquareClick, selectedPiece, index, theme, squares }) 
 	
 	value = global.sqValue ? eval(global.sqValue) : getImage(value);
 
-	return <button className="square" onClick={onSquareClick} style={style}>{value}</button>;
+	return <button className="unselectable square" onClick={onSquareClick} style={style}>{value}</button>;
 }
 
 function BoardRow({ index, onSquareClick, squares, selectedPiece, theme }) {
@@ -236,7 +236,7 @@ re-render the game:
 				<Helmet>
 					<title>Chess No. 25</title>
 				</Helmet>
-				<h1>Chess No. 25</h1>
+				<h1 className="unselectable">Chess No. 25</h1>
 				<Game theme={theme} data={setupData} />
 			</div>
 		</HelmetProvider>
