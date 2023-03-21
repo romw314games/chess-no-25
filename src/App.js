@@ -14,8 +14,11 @@ function Square({ value, onSquareClick, selectedPiece, index, theme, squares }) 
 	const isDark = ((Math.floor(index / 8) % 2) !== (index % 2));
 	const color = isDark ? theme.square.darkColor : theme.square.lightColor;
 	const style = {
-		backgroundColor: color[Number(selectedPiece === index) + (Number(selectedPiece && gameLogic.canBeMoved(selectedPiece, index, squares)) * 2)]
+		backgroundColor: color[0]
 	};
+
+	if (selectedPiece)
+		style.backgroundColor = color[Number(selectedPiece === index) + (Number(selectedPiece && gameLogic.canBeMoved(selectedPiece, index, squares)) * 2)]
 
 	console.dlog(4, 'render square log', {
 		value: value,
