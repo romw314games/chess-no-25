@@ -5,6 +5,13 @@ import App, { setupData } from './App';
 import { Theme } from './Theme';
 import reportWebVitals from './reportWebVitals';
 
+if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
+	console.log(`Welcome to Chess No. 25 debugger console!
+@
+	You can change log level by calling the loglevel function. The default log level is 2.`);
+	global.uselog = 2;
+}
+
 const data = new setupData(new Theme('default'));
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

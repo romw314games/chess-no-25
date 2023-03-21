@@ -193,7 +193,15 @@ function App({ setupData }) {
 		return `global.sqValue set to ${s} : re-render trigerred`;
 	}
 
-	function debugLogOption() {
+	global.loglevel = (s) => {
+		if (s) {
+			global.uselog = s;
+			return `global.uselog set to ${s}`;
+		}
+		return global.uselog;
+	}
+
+	global.debugLogOption = () => {
 		console.log(`set debug logging:
 @
 	right-click on the object -> store object as global variable
