@@ -90,7 +90,7 @@ function Board({ theme, data, onPlay }) {
 			console.dlog(2, "selecting piece");
 			setSelectedPiece(index);
 		}
-		else if (gameLogic.canBeMoved(selectedPiece, index, squares)) {
+		else if (selectedPiece !== null && gameLogic.canBeMoved(selectedPiece, index, squares)) {
 			console.dlog(2, "moving piece");
 			nextSquares[selectedPiece] = null;
 			nextSquares[index] = squares[selectedPiece];
