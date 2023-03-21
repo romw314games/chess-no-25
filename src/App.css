@@ -13,11 +13,14 @@
 	display: table;
 }
 .square {
-	background: #fff;
-	border: 1px solid #999;
-	float: left;
+	border: 1px solid #999; /* border */
+
+	/* font */
 	font-size: 24px;
 	font-weight: bold;
+
+	/* position */
+	float: left;
 	line-height: 34px;
 	height: 50px;
 	margin-right: -1px;
