@@ -244,7 +244,7 @@ re-render the game:
 }
 
 function DefaultApp() {
-	return <App setupData={new setupData(new Theme('default'))} />;
+	return <App setupData={new setupData(Theme('default'))} />;
 }
 
 function setupData(theme) {
