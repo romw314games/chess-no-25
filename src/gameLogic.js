@@ -27,8 +27,15 @@ function whereCanMove(squares, piece, x, y) {
 		const range = [...Array(8).keys()];
 		return range.includes(x) && range.includes(y);
 	};
+	const pawnCapture = (x, y) => emptyForPlayer(x, y) && square(x, y);
 	
 	switch (piece.name) {
+		case 'pawn':
+			addIfEmpty(x, piece.utils.forward(y, 1), (x, y) => !square(x, y));
+			addIfEmptyExt(x, piece.utils.forward(y, 2), y === piece.colorVal(6, 1) && (square(x, piece.utils.forward(y, 1)) === null), (x, y) => !square(x, y));
+			addIfEmpty(x + 1, piece.utils.forward(y, 1), pawnCapture);
+			addIfEmpty(x - 1, piece.utils.forward(y, 1), pawnCapture);
+			break;
 	}
 
 	console.dlog(3, `whereCanMove: test end`, result);
@@ -40,7 +47,7 @@ function canBeMoved(selectedPiece, endIndex, squares) {
 	if (endIndex === selectedPiece)
 		return false;
 	const type = squares[selectedPiece].name;
-	if (![].includes(type))
+	if (!['pawn'].includes(type))
 		return true;
 	const pos = index2pos(selectedPiece);
 	const whereCanMoveX = whereCanMove(squares, squares[selectedPiece], pos.x, pos.y);
