@@ -28,6 +28,16 @@ function whereCanMove(squares, piece, x, y) {
 		return range.includes(x) && range.includes(y);
 	};
 	const pawnCapture = (x, y) => emptyForPlayer(x, y) && square(x, y);
+	const rookMovement = (dirs) => {
+		for (let [dirX, dirY] of dirs) {
+			let tempX, tempY, count = 0;
+			for ([tempX, tempY] = [x, y]; isValidPosition(tempX, tempY) && ((square(tempX, tempY) === null) || !count); [tempX, tempY, count] = [tempX + dirX, tempY + dirY, count + 1])
+				add(tempX, tempY);
+			console.dlog(4, `testing qm tempresult log 1 / whereCanMove`, { $tempPos: [tempX, tempY], $pos: [x, y], $result: result.map(index2pos).map(obj => [obj.x, obj.y]), result: result, dir: [dirX, dirY] });
+			addIfEmptyExt(tempX, tempY, isValidPosition(tempX, tempY));
+			console.dlog(3, `testing qm tempresult log 2 / whereCanMove`, { $pos: [x, y], $result: result.map(index2pos).map(obj => [obj.x, obj.y]), result: result, dir: [dirX, dirY] });
+		}
+	}
 	
 	switch (piece.name) {
 		case 'pawn':
@@ -35,6 +45,9 @@ function whereCanMove(squares, piece, x, y) {
 			addIfEmptyExt(x, piece.utils.forward(y, 2), y === piece.colorVal(6, 1) && (square(x, piece.utils.forward(y, 1)) === null), (x, y) => !square(x, y));
 			addIfEmpty(x + 1, piece.utils.forward(y, 1), pawnCapture);
 			addIfEmpty(x - 1, piece.utils.forward(y, 1), pawnCapture);
+			break;
+		case 'rook':
+			rookMovement([[1, 0], [0, 1], [-1, 0], [0, -1]]);
 			break;
 	}
 
@@ -47,7 +60,7 @@ function canBeMoved(selectedPiece, endIndex, squares) {
 	if (endIndex === selectedPiece)
 		return false;
 	const type = squares[selectedPiece].name;
-	if (!['pawn'].includes(type))
+	if (!['pawn', 'rook'].includes(type))
 		return true;
 	const pos = index2pos(selectedPiece);
 	const whereCanMoveX = whereCanMove(squares, squares[selectedPiece], pos.x, pos.y);
