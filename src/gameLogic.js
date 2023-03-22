@@ -39,7 +39,17 @@ function whereCanMove(squares, piece, x, y) {
 function canBeMoved(selectedPiece, endIndex, squares) {
 	if (endIndex === selectedPiece)
 		return false;
-	return selectedPiece !== null;
+	const type = squares[selectedPiece].name;
+	if (![].includes(type))
+		return true;
+	const pos = index2pos(selectedPiece);
+	const whereCanMoveX = whereCanMove(squares, squares[selectedPiece], pos.x, pos.y);
+	const canMove = whereCanMoveX.includes(endIndex);
+	if (global.debug1)
+		console.dlog(2, 'can be moved test', { fromPos: pos, from: selectedPiece, to: endIndex, squares: squares, whereCanMove: whereCanMoveX, type: type, canMove: canMove });
+	return selectedPiece !== null && canMove;
 }
+
+global.unbug1 = (p) => global.debug1 = p ?? true;
 
 export { canBeMoved, whereCanMove, index2pos, pos2index };
