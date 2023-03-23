@@ -28,7 +28,7 @@ function whereCanMove(squares, piece, x, y) {
 		return range.includes(x) && range.includes(y);
 	};
 	const pawnCapture = (x, y) => emptyForPlayer(x, y) && square(x, y);
-	const rookMovement = (dirs) => {
+	const rookOrBishopMovement = (dirs) => {
 		for (let [dirX, dirY] of dirs) {
 			let tempX, tempY, count = 0;
 			for ([tempX, tempY] = [x, y]; isValidPosition(tempX, tempY) && ((square(tempX, tempY) === null) || !count); [tempX, tempY, count] = [tempX + dirX, tempY + dirY, count + 1])
@@ -47,7 +47,10 @@ function whereCanMove(squares, piece, x, y) {
 			addIfEmpty(x - 1, piece.utils.forward(y, 1), pawnCapture);
 			break;
 		case 'rook':
-			rookMovement([[1, 0], [0, 1], [-1, 0], [0, -1]]);
+			rookOrBishopMovement([[1, 0], [0, 1], [-1, 0], [0, -1]]);
+			break;
+		case 'bishop':
+			rookOrBishopMovement([[1, 1], [-1, 1], [-1, -1], [1, -1]]);
 			break;
 	}
 
@@ -60,7 +63,7 @@ function canBeMoved(selectedPiece, endIndex, squares) {
 	if (endIndex === selectedPiece)
 		return false;
 	const type = squares[selectedPiece].name;
-	if (!['pawn', 'rook'].includes(type))
+	if (!['pawn', 'rook', 'bishop'].includes(type))
 		return true;
 	const pos = index2pos(selectedPiece);
 	const whereCanMoveX = whereCanMove(squares, squares[selectedPiece], pos.x, pos.y);
