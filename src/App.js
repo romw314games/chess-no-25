@@ -247,27 +247,29 @@ function DefaultApp() {
 	return <App setupData={new setupData(Theme('default'))} />;
 }
 
-function setupData(theme) {
-	this.type = "chessdata";
-	this.history = [Array(64).fill(null)];
-	this.setHistory = (s) => this.history = s;
-	this.currentMove = 0;
-	this.setCurrentMove = (s) => this.currentMove = s;
-	this.theme = theme;
-	
-	for (let color of ['light', 'dark']) {
-		let row = Array(8).fill(null);
-		row[0] = theme.getPiece(color, 'rook');
-		row[1] = theme.getPiece(color, 'knight');
-		row[2] = theme.getPiece(color, 'bishop');
-		row[3] = theme.getPiece(color, 'queen');
-		row[4] = theme.getPiece(color, 'king');
-		row[5] = theme.getPiece(color, 'bishop');
-		row[6] = theme.getPiece(color, 'knight');
-		row[7] = theme.getPiece(color, 'rook');
-		for (let i = 0; i < 8; i++) {
-			this.history[0][(color === 'dark') ? i : (i + 56)] = row[i];
-			this.history[0][(color === 'dark') ? (i + 8) : (i + 48)] = theme.getPiece(color, 'pawn');
+class setupData {
+	constructor(theme) {
+		this.type = "chessdata";
+		this.history = [Array(64).fill(null)];
+		this.setHistory = (s) => this.history = s;
+		this.currentMove = 0;
+		this.setCurrentMove = (s) => this.currentMove = s;
+		this.theme = theme;
+		
+		for (let color of ['light', 'dark']) {
+			let row = Array(8).fill(null);
+			row[0] = theme.getPiece(color, 'rook');
+			row[1] = theme.getPiece(color, 'knight');
+			row[2] = theme.getPiece(color, 'bishop');
+			row[3] = theme.getPiece(color, 'queen');
+			row[4] = theme.getPiece(color, 'king');
+			row[5] = theme.getPiece(color, 'bishop');
+			row[6] = theme.getPiece(color, 'knight');
+			row[7] = theme.getPiece(color, 'rook');
+			for (let i = 0; i < 8; i++) {
+				this.history[0][(color === 'dark') ? i : (i + 56)] = row[i];
+				this.history[0][(color === 'dark') ? (i + 8) : (i + 48)] = theme.getPiece(color, 'pawn');
+			}
 		}
 	}
 }
