@@ -31,7 +31,7 @@ function whereCanMove(squares, piece, x, y) {
 	switch (piece.name) {
 	}
 
-	console.dlog(3, `whereCanMove: test end`, result);
+	console.dlog(3, "whereCanMove: test end", result);
 
 	return result;
 }
