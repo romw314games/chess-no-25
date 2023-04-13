@@ -19,8 +19,8 @@ function whereCanMove(squares, piece, x, y) {
 	};
 	const addIfEmpty = (x, y, isEmpty) => addIfEmptyExt(x, y, true, isEmpty);
 	const addAllIfEmpty = (all) => {
-		for (const [x, y] of all)
-			addIfEmptyExt(x, y, isValidPosition(x, y));
+		for (const [a, b] of all)
+			addIfEmptyExt(a, b, isValidPosition(a, b));
 	}
 	const addAllIfEmptyRelative = (all) => addAllIfEmpty(all.map(pos => [pos[0] + x, pos[1] + y]));
 	const isValidPosition = (x, y) => {
