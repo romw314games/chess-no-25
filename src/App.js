@@ -63,7 +63,7 @@ function Board({ theme, data, onPlay }) {
 	
 	function handleClick(index) {
 		const nextSquares = squares.slice();
-		let logData = {
+		const logData = {
 			selectedPiece: selectedPiece ? { x: selectedPiece % 8, y: Math.floor(selectedPiece / 8) } : null,
 			position: index ? { x: index % 8, y: Math.floor(index / 8) } : null,
 			selectedValue: selectedPiece ? squares[selectedPiece] : null,
@@ -150,7 +150,7 @@ function Game({ theme, data }) {
 	}
 
 	const promotions = {};
-	for (let promotion of ['queen', 'rook', 'bishop', 'knight'])
+	for (const promotion of ['queen', 'rook', 'bishop', 'knight'])
 		promotions[promotion] = () => promotePiece(promoting, promotion);
 
 	function undoMove() {
@@ -256,8 +256,8 @@ class setupData {
 		this.setCurrentMove = (s) => this.currentMove = s;
 		this.theme = theme;
 		
-		for (let color of ['light', 'dark']) {
-			let row = Array(8).fill(null);
+		for (const color of ['light', 'dark']) {
+			const row = Array(8).fill(null);
 			row[0] = theme.getPiece(color, 'rook');
 			row[1] = theme.getPiece(color, 'knight');
 			row[2] = theme.getPiece(color, 'bishop');

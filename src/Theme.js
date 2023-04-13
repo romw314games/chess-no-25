@@ -18,7 +18,7 @@ function ThemeData(theme) {
 		dark: {}
 	};
 	this.getPiece = (isLight, name) => {
-		let player = (isLight === true || isLight === 'light') ? 'light' : 'dark';
+		const player = (isLight === true || isLight === 'light') ? 'light' : 'dark';
 		return this.pieces[player][name];
 	};
 	this.game = theme.game ?? {
@@ -35,8 +35,8 @@ function ThemeData(theme) {
 
 	// pieces
 	try {
-		for (let color of ['light', 'dark'])
-			for (let piece of ['king', 'queen', 'bishop', 'knight', 'rook', 'pawn'])
+		for (const color of ['light', 'dark'])
+			for (const piece of ['king', 'queen', 'bishop', 'knight', 'rook', 'pawn'])
 				this.pieces[color][piece] = {
 					image: require('./img/' + piece + '-' + theme.name + '-' + color + '.png'),
 					fullName: `${color} ${piece}`,
