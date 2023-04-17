@@ -20,3 +20,6 @@ jobs:
         
       - name: Move the "latest-stable" branch
         run: git branch --force latest-stable ${{ steps.get-ref.outputs.ref }}
+        
+      - name: Push the changes
+        run: git push
