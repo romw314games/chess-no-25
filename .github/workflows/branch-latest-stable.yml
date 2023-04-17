@@ -21,8 +21,5 @@ jobs:
       - name: Move the "latest-stable" branch
         run: git branch --force latest-stable ${{ steps.get-ref.outputs.ref }}
         
-      - name: Checkout the "latest-stable" branch
-        run: git checkout latest-stable
-        
-      - name: Push the changes
-        run: git push
+      - name: Push the "latest-stable" branch
+        run: git push --force origin latest-stable
