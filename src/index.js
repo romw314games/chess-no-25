@@ -3,6 +3,9 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App, { setupData } from './App';
 import { Theme } from './Theme';
+import { DebugRunProvider, getLg, setLg } from './DebugRunContext';
+import ErrorHandler from './ErrorHandler';
+import './debug';
 import reportWebVitals from './reportWebVitals';
 
 if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
@@ -12,10 +15,19 @@ if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
 	global.uselog = 2;
 }
 
-const data = new setupData(new Theme('default'));
+setLg(f => f());
+
+global.error = null;
+global.catch = (error) => global.error = error;
+
+const data = new setupData(Theme('default', getLg));
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-	<App setupData={data} />
+	<ErrorHandler error={global.error}>
+		<DebugRunProvider>
+			<App setupData={data} />
+		</DebugRunProvider>
+	</ErrorHandler>
 );
 
 // If you want to start measuring performance in your app, pass a function

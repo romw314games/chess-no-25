@@ -9,9 +9,9 @@ function pieceIs(piece, color, name) {
 	return piece && piece.color === color && piece.name === name;
 }
 
-function ThemeData(theme) {
-	if (!theme.name)
-		console.error(`theme not valid, info`, { theme: theme, this: this });
+function ThemeData(theme, options = {}) {
+	if (!theme.name && options.validate)
+		console.error(`theme not valid, info`, { theme: theme, this: this, options: options });
 	this.name = theme.name;
 	this.pieces = {
 		light: {},
@@ -34,33 +34,37 @@ function ThemeData(theme) {
 	this.style = theme.style ?? {};
 
 	// pieces
-	try {
-		for (let color of ['light', 'dark'])
-			for (let piece of ['king', 'queen', 'bishop', 'knight', 'rook', 'pawn'])
-				this.pieces[color][piece] = {
-					image: require('./img/' + piece + '-' + theme.name + '-' + color + '.png'),
-					fullName: `${color} ${piece}`,
-					theme: theme.name,
-					name: piece,
-					player: color,
-					colorVal: (l, d) => (color === 'light') ? l : d,
-					utils: {
-						forward: (y, d) => (color === 'light') ? (y - d) : (y + d)
-					}
-				};
-	}
-	catch (e) {
-		console.error(`couldn't find pieces for theme '${theme.name}'`, `${e.name}: ${e.message}`);
+	if (options.findPieces ?? true) {
+		try {
+			for (let color of ['light', 'dark'])
+				for (let piece of ['king', 'queen', 'bishop', 'knight', 'rook', 'pawn'])
+					this.pieces[color][piece] = {
+						image: require('./img/' + piece + '-' + theme.name + '-' + color + '.png'),
+						fullName: `${color} ${piece}`,
+						theme: theme.name,
+						name: piece,
+						player: color,
+						colorVal: (l, d) => (color === 'light') ? l : d,
+						utils: {
+							forward: (y, d) => (color === 'light') ? (y - d) : (y + d)
+						}
+					};
+		}
+		catch (e) {
+			console.error(`couldn't find pieces for theme '${theme.name}'\n${e.name}: ${e.message}`);
+		}
 	}
 }
 
-function Theme(themeId) {
-	console.log(`theme info {${themeId}}`);
+function Theme(themeId, logrun) {
+	global.cdlog(logrun, 1, `theme info {${themeId}}`);
 	if (!themes.themes[themeId])
 		console.error(`couldn't find theme ${themeId}, info`, { themeId: themeId, global: global, _: [] });
 	const theme = themes.themes[themeId];
 	theme.name ??= themeId;
-	return new ThemeData(theme);
+	const result = new ThemeData(theme);
+	logrun(() => global.cdlog(logrun, 2, 'theme full', result));
+	return result;
 }
 
 export { Theme, getImage, pieceIs };
