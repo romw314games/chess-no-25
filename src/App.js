@@ -86,7 +86,8 @@ function Board({ theme, data, onPlay }) {
 				_0_unselect: Boolean(selectedPiece === index),
 				_1_select: Boolean(selectedPiece === null && squares[index] !== null),
 				_2_move: Boolean(squares[index] !== null)
-			}
+			},
+			chessData: data
 		};
 		logData.conditions._1_select &= !logData.conditions._0_unselect;
 		logData.conditions._2_move &= logData.conditions._1_select;
@@ -276,7 +277,7 @@ function DefaultApp() {
 
 function createHistoryObject(squares) {
 	console.adlog(2, 'creating history object, squares:', squares, '_gameLogic:', global._gameLogic);
-	return { squares: squares, set: { _gameLogic: global._gameLogic } };
+	return { squares: squares, set: { _gameLogic: structuredClone(global._gameLogic) } };
 }
 
 function restoreFromHistoryObject(obj) {
