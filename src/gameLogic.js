@@ -22,10 +22,10 @@ function whereCanMove(squares, piece, x, y) {
 		if (ext && isEmpty(x, y)) add(x, y);
 	};
 //	const addIfEmpty = (x, y, isEmpty) => addIfEmptyExt(x, y, true, isEmpty);
-	const addAllIfEmpty = (all) => {
-		for (const [moveX, moveY] of all)
-			addIfEmptyExt(moveX, moveY, isValidPosition(moveX, moveY));
-	}
+//	const addAllIfEmpty = (all) => {
+//		for (const [moveX, moveY] of all)
+//			addIfEmptyExt(moveX, moveY, isValidPosition(moveX, moveY));
+//	}
 //	const addAllIfEmptyRelative = (all) => addAllIfEmpty(all.map(pos => [pos[0] + x, pos[1] + y]));
 	
 	switch (piece.name) {
