@@ -12,6 +12,10 @@ function whereCanMove(squares, piece, x, y) {
 
 	const square = (x, y) => getSquare(squares, x, y);
 	const add = (x, y) => result.push(pos2index(x, y));
+	const isValidPosition = (x, y) => {
+		const range = [...Array(8).keys()];
+		return range.includes(x) && range.includes(y);
+	};
 	const emptyForPlayer = (x, y) => !square(x, y) || (square(x, y).player !== piece.player);
 	const addIfEmptyExt = (x, y, ext, isEmpty) => {
 		isEmpty ??= emptyForPlayer;
@@ -23,10 +27,6 @@ function whereCanMove(squares, piece, x, y) {
 			addIfEmptyExt(moveX, moveY, isValidPosition(moveX, moveY));
 	}
 	const addAllIfEmptyRelative = (all) => addAllIfEmpty(all.map(pos => [pos[0] + x, pos[1] + y]));
-	const isValidPosition = (x, y) => {
-		const range = [...Array(8).keys()];
-		return range.includes(x) && range.includes(y);
-	};
 	
 	switch (piece.name) {
 	}
