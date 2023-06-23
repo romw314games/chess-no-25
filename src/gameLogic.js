@@ -1,3 +1,4 @@
+// gameLogic.js
 const index2pos = (index) => { return { x: index % 8, y: Math.floor(index / 8) }; };
 const pos2index = (x, y) => (y === undefined) ? pos2index(x.x, x.y) : (x + y * 8);
 
