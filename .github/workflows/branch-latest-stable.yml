@@ -4,6 +4,8 @@ name: Manage the "latest-stable" branch
 on:
   push:
 
+permissions: write-all
+
 jobs:
   manage:
     # The type of runner that the job will run on
