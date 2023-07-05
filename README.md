@@ -5,7 +5,7 @@ Chess game for two.
 [![CI](https://github.com/romw314/chess-no-25/actions/workflows/node.js.yml/badge.svg)](https://github.com/romw314/chess-no-25/actions/workflows/node.js.yml)
 [![Deploy](https://github.com/romw314/chess-no-25/actions/workflows/react-deploy.yml/badge.svg)](https://github.com/romw314/chess-no-25/actions/workflows/react-deploy.yml)
 
-## Testing
+## Development
 | Command | Behavior |
 |---|---|
 | `yarn start` | Starts a development server on port 3000 |
