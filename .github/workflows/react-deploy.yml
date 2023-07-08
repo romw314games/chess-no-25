@@ -87,7 +87,9 @@ jobs:
     needs: build
     steps:
       - name: Download butler
-        run: curl -o butler http://dl.itch.ovh/butler/linux-amd64/head/butler
+        run: |
+		  curl -o butler http://dl.itch.ovh/butler/linux-amd64/head/butler
+		  chmod +x butler
       - name: Download artifact
         uses: actions/download-artifact@v2.1.1
         with:
