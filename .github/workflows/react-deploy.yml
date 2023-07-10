@@ -1,6 +1,4 @@
-# Sample workflow for building and deploying a Next.js site to GitHub Pages
-#
-# To get started with Next.js see: https://nextjs.org/docs/getting-started
+# Workflow for building and deploying a React app to GitHub Pages and itch.io
 #
 name: Deploy
 
@@ -51,7 +49,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: "16"
+          node-version: "18"
           cache: ${{ steps.detect-package-manager.outputs.manager }}
       - name: Setup Pages
         uses: actions/configure-pages@v3
@@ -64,6 +62,10 @@ jobs:
         with:
           name: html5
           path: ./build
+      - name: Upload Pages artifact
+	    uses: actions/upload-pages-artifact@v1
+		with:
+		  path: ./build
 
   # Deployment jobs
   deploy-gh-pages:
@@ -76,13 +78,11 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
-        with:
-          artifact_name: html5
   
   deploy-itch-io:
     environment:
       name: itch.io
-      url: ${{ vars.ITCH_IO_USERNAME }}.itch.io/${{ vars.ITCH_IO_GAMEID }}
+      url: https://${{ vars.ITCH_IO_USERNAME }}.itch.io/${{ vars.ITCH_IO_GAMEID }}
     runs-on: ubuntu-latest
     needs: build
     steps:
@@ -97,3 +97,4 @@ jobs:
         run: ./butler push html5 ${{ vars.ITCH_IO_USERNAME }}/${{ vars.ITCH_IO_GAMEID }}:html5
         env:
           BUTLER_API_KEY: ${{ secrets.ITCH_IO_API_KEY }}
+
