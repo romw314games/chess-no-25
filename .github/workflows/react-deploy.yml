@@ -63,9 +63,9 @@ jobs:
           name: html5
           path: ./build
       - name: Upload Pages artifact
-	    uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v1
         with:
-		  path: ./build
+          path: ./build
 
   # Deployment jobs
   deploy-gh-pages:
