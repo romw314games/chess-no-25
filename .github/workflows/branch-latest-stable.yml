@@ -18,7 +18,7 @@ jobs:
         
       - name: Get the latest version
         id: get-ref
-        run: echo "ref=$(git tag | awk '{print $0}END{print "zzzz"}' | grep -E 'v.*' | sort -Vr | head -n1)" >> "$GITHUB_OUTPUT"
+        run: echo "ref=$(git tag | awk '{print $0}END{print "zzzz"}' | grep -E 'v.*' | sort -Vr | head -n1)" | tee "$GITHUB_OUTPUT"
         
       - name: Move the "latest-stable" branch
         run: git branch --force latest-stable ${{ steps.get-ref.outputs.ref }}
