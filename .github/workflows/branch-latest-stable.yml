@@ -19,7 +19,7 @@ jobs:
       - name: Get the latest version
         id: get-ref
         run: |
-          ls -alF
+          ls -alF .git/refs/tags
           git tag --list
           echo "ref=$(git tag --list | awk '{print $0}END{print "zzzz"}' | grep -E 'v.*' | sort -Vr | head -n1)" | tee "$GITHUB_OUTPUT"
         
