@@ -1,26 +1,31 @@
-import { useState } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import Dialog from '@material-ui/core/Dialog';
-import Button from '@material-ui/core/Button';
+import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import { Theme, getImage } from './Theme';
 import * as gameLogic from './gameLogic.js';
 import './App.css';
+import { DebugRunContext } from './DebugRunContext';
 
-function Square({ value, onSquareClick, selectedPiece, index, theme, squares }) {
+function Square({ value, onSquareClick, selectedPiece, index, theme, squares, testid }) {
 	const isDark = ((Math.floor(index / 8) % 2) !== (index % 2));
 	const color = isDark ? theme.square.darkColor : theme.square.lightColor;
 	const style = {
 		backgroundColor: color[0]
 	};
+	
+	let bcIndexSteps = [];
+	let bcIndex = null;
+	if (selectedPiece) {
+		bcIndexSteps.push([Number(selectedPiece === index), 'x: 0 or 1: check if {{index}} piece is selected']);
+		bcIndexSteps.push([Boolean(selectedPiece), 'a: boolean: check if any piece is selected']);
+		bcIndexSteps.push([bcIndexSteps[1][0] ? gameLogic.canBeMoved(selectedPiece, index, squares) : false, 'b: if a, then check if piece can be moved to {{index}}, else false']);
+		bcIndexSteps.push([bcIndexSteps[2][0] * 2, 'y: b * 2']);
+		bcIndexSteps.push([bcIndexSteps[0][0] + bcIndexSteps[3][0], 'bcIndex: x + y']);
+		bcIndex = bcIndexSteps[bcIndexSteps.length - 1][0];
+		style.backgroundColor = color[bcIndex];
+	}
 
-	if (selectedPiece)
-		style.backgroundColor = color[Number(selectedPiece === index) + (Number(selectedPiece && gameLogic.canBeMoved(selectedPiece, index, squares)) * 2)]
-
-	console.dlog(4, 'render square log', {
+	console.dlog(useContext(DebugRunContext), 4, 'render square log', {
 		value: value,
 		onSquareClick: onSquareClick,
 		selectedPiece: selectedPiece,
@@ -28,38 +33,42 @@ function Square({ value, onSquareClick, selectedPiece, index, theme, squares }) 
 		theme: theme,
 		global: global,
 		setGlobal: (n, v) => global[n] = v,
-		squares: squares
+		squares: squares,
+		style: style,
+		bcIndex: bcIndex,
+		bcIndexSteps: bcIndexSteps,
+		colors: color
 	});
 	
 	value = global.sqValue ? eval(global.sqValue) : getImage(value);
 
-	return <button className="unselectable square" onClick={onSquareClick} style={style}>{value}</button>;
+	return <button className="unselectable square" onClick={onSquareClick} style={style} data-testid={testid}>{value}</button>;
 }
 
 function BoardRow({ index, onSquareClick, squares, selectedPiece, theme }) {
+	const rowIndex = index;
 	index *= 8;
 	return (
 		<div className="board-row">
-			<Square value={squares[index]} onSquareClick={() => onSquareClick(index+0)} selectedPiece={selectedPiece} index={index} theme={theme} squares={squares} />
-			<Square value={squares[index+1]} onSquareClick={() => onSquareClick(index+1)} selectedPiece={selectedPiece} index={index+1} theme={theme} squares={squares} />
-			<Square value={squares[index+2]} onSquareClick={() => onSquareClick(index+2)} selectedPiece={selectedPiece} index={index+2} theme={theme} squares={squares} />
-			<Square value={squares[index+3]} onSquareClick={() => onSquareClick(index+3)} selectedPiece={selectedPiece} index={index+3} theme={theme} squares={squares} />
-			<Square value={squares[index+4]} onSquareClick={() => onSquareClick(index+4)} selectedPiece={selectedPiece} index={index+4} theme={theme} squares={squares} />
-			<Square value={squares[index+5]} onSquareClick={() => onSquareClick(index+5)} selectedPiece={selectedPiece} index={index+5} theme={theme} squares={squares} />
-			<Square value={squares[index+6]} onSquareClick={() => onSquareClick(index+6)} selectedPiece={selectedPiece} index={index+6} theme={theme} squares={squares} />
-			<Square value={squares[index+7]} onSquareClick={() => onSquareClick(index+7)} selectedPiece={selectedPiece} index={index+7} theme={theme} squares={squares} />
+			<Square value={squares[index]} onSquareClick={() => onSquareClick(index+0)} selectedPiece={selectedPiece} index={index} theme={theme} squares={squares} testid={`0/${rowIndex}`} />
+			<Square value={squares[index+1]} onSquareClick={() => onSquareClick(index+1)} selectedPiece={selectedPiece} index={index+1} theme={theme} squares={squares} testid={`1/${rowIndex}`} />
+			<Square value={squares[index+2]} onSquareClick={() => onSquareClick(index+2)} selectedPiece={selectedPiece} index={index+2} theme={theme} squares={squares} testid={`2/${rowIndex}`} />
+			<Square value={squares[index+3]} onSquareClick={() => onSquareClick(index+3)} selectedPiece={selectedPiece} index={index+3} theme={theme} squares={squares} testid={`3/${rowIndex}`} />
+			<Square value={squares[index+4]} onSquareClick={() => onSquareClick(index+4)} selectedPiece={selectedPiece} index={index+4} theme={theme} squares={squares} testid={`4/${rowIndex}`} />
+			<Square value={squares[index+5]} onSquareClick={() => onSquareClick(index+5)} selectedPiece={selectedPiece} index={index+5} theme={theme} squares={squares} testid={`5/${rowIndex}`} />
+			<Square value={squares[index+6]} onSquareClick={() => onSquareClick(index+6)} selectedPiece={selectedPiece} index={index+6} theme={theme} squares={squares} testid={`6/${rowIndex}`} />
+			<Square value={squares[index+7]} onSquareClick={() => onSquareClick(index+7)} selectedPiece={selectedPiece} index={index+7} theme={theme} squares={squares} testid={`7/${rowIndex}`} />
 		</div>
 	);
 }
 
 function Board({ theme, data, onPlay }) {
-	console.dlog(3, 'render data write', data);
+	const logrun = useContext(DebugRunContext);
+	console.dlog(logrun, 3, 'render data write', data);
 
-	const history = data.history;
-	const setHistory = data.setHistory;
 	const [selectedPiece, setSelectedPiece] = useState(null);
 	const [lightIsNext, setLightIsNext] = useState(true);
-	const squares = data.history[data.currentMove].slice();
+	const squares = data.history[data.currentMove].squares.slice();
 	
 	function handleClick(index) {
 		const nextSquares = squares.slice();
@@ -77,27 +86,37 @@ function Board({ theme, data, onPlay }) {
 				_0_unselect: Boolean(selectedPiece === index),
 				_1_select: Boolean(selectedPiece === null && squares[index] !== null),
 				_2_move: Boolean(squares[index] !== null)
-			}
+			},
+			chessData: data
 		};
 		logData.conditions._1_select &= !logData.conditions._0_unselect;
 		logData.conditions._2_move &= logData.conditions._1_select;
-		console.dlog(1, "board click update", logData);
+		console.dlog(logrun, 1, "board click update", logData);
+
 		if (selectedPiece === index) {
-			console.dlog(2, "unselecting piece");
+			console.dlog(logrun, 2, "unselecting piece");
 			setSelectedPiece(null);
 		}
 		else if (selectedPiece === null && squares[index] !== null) {
-			console.dlog(2, "selecting piece");
+			console.dlog(logrun, 2, "selecting piece");
 			setSelectedPiece(index);
 		}
-		else if (selectedPiece !== null && gameLogic.canBeMoved(selectedPiece, index, squares)) {
-			console.dlog(2, "moving piece");
-			nextSquares[selectedPiece] = null;
-			nextSquares[index] = squares[selectedPiece];
-			onPlay(selectedPiece, index, nextSquares);
-			setSelectedPiece(null);
+		else if (selectedPiece !== null) {
+			const [canBeMoved, doMoveExtra] = gameLogic.canBeMovedExtra(selectedPiece, index, squares);
+			if (canBeMoved) {
+				console.dlog(logrun, 2, "moving piece");
+				nextSquares[selectedPiece] = null;
+				nextSquares[index] = squares[selectedPiece];
+				doMoveExtra((i, v) => nextSquares[i] = v);
+				onPlay(selectedPiece, index, nextSquares);
+				setSelectedPiece(null);
+			}
 		}
 	}
+
+	global.chess.squares = squares;
+	global.chess.history = data.history;
+	global.chess.advanced = data;
 
 	return (
 		<div className="board" style={theme.board.style}>
@@ -114,35 +133,33 @@ function Board({ theme, data, onPlay }) {
 }
 
 function Game({ theme, data }) {
+	const logrun = useContext(DebugRunContext);
 	const reRender = useState(0)[1];
 	const [promoting, setPromoting] = useState(null);
 
-	console.dlog = (level, ...args) => {
-		if (global.uselog && global.uselog >= level)
-			console.log(...args);
-	}
-
 	function handlePlay(from, to, nextSquares, overwrite) {
 		for (let i = 0; i < nextSquares.length; i++) {
-			console.dlog(4, `light promotion test testing piece at ${i}`, nextSquares[i]);
+			console.dlog(logrun, 4, `(standard) promotion test testing piece at ${i}`, nextSquares[i]);
 			if (nextSquares[i] && ((i < 8 && nextSquares[i].fullName === 'light pawn') || (i >= 56 && nextSquares[i].fullName === 'dark pawn'))) {
-				console.dlog(1, 'promotion data write', data);
+				console.dlog(logrun, 1, 'promotion data write', data);
 				setPromoting(i);
 			}
 		}
 		let nextHistory;
 		if (overwrite) {
 			nextHistory = data.history.slice();
-			nextHistory[data.currentMove] = nextSquares;
+			nextHistory[data.currentMove] = createHistoryObject(nextSquares);
 		}
-		else nextHistory = [...data.history.slice(0, data.currentMove + 1), nextSquares];
+		else nextHistory = [...data.history.slice(0, data.currentMove + 1), createHistoryObject(nextSquares)];
 		data.setHistory(nextHistory);
 		data.setCurrentMove(nextHistory.length - 1);
 		reRender(Math.random());
+		global.chess.squares = nextSquares;
+		global.chess.history = nextHistory;
 	}
 
 	function promotePiece(index, piece) {
-		console.dlog(1, `promoting pawn on ${index} to ${piece}`);
+		console.dlog(logrun, 1, `promoting pawn on ${index} to ${piece}`);
 		const nextSquares = data.history[data.currentMove].slice();
 		nextSquares[index] = theme.getPiece(index < 8, piece);
 		handlePlay(index, index, nextSquares, true);
@@ -158,8 +175,16 @@ function Game({ theme, data }) {
 		nextHistory.pop();
 		data.setHistory(nextHistory);
 		data.setCurrentMove(data.currentMove - 1);
+		restoreFromHistoryObject(data.history[data.currentMove]);
 		reRender(Math.random());
 	}
+
+	// initialize whereCanMove (the global._gameLogic object will be created)
+	useEffect(() => {
+		gameLogic.whereCanMove(Array(64).fill(null), {}, 0, 0);
+		console.adlog(1, 'initialized gameLogic, gameLogic internal data write', global._gameLogic);
+		handlePlay(0, 0, data.history[0].squares, true);
+	}, []);
 
 	return (
 		<div className="game" style={theme.game.style}>
@@ -191,15 +216,18 @@ function App({ setupData }) {
 		global.sqValue = s;
 		reRender(Math.random());
 		return `global.sqValue set to ${s} : re-render trigerred`;
-	}
+	};
 
-	global.loglevel = (s) => {
+	global.ll = global.loglevel = (s) => {
 		if (s) {
 			global.uselog = s;
 			return `global.uselog set to ${s}`;
 		}
 		return global.uselog;
-	}
+	};
+
+	for (let logLevel of [1, 2, 3, 4])
+		global[`ll${logLevel}`] = () => global.ll(logLevel);
 
 	global.debugLogOption = () => {
 		console.log(`set debug logging:
@@ -232,7 +260,7 @@ re-render the game:
 
 	return (
 		<HelmetProvider>
-			<div className="App" style={theme.style}>
+			<div className="App" style={theme.style} data-testid="app-div">
 				<Helmet>
 					<title>Chess No. 25</title>
 				</Helmet>
@@ -244,12 +272,26 @@ re-render the game:
 }
 
 function DefaultApp() {
-	return <App setupData={new setupData(Theme('default'))} />;
+	return <App setupData={new setupData(Theme('default', useContext(DebugRunContext)))} />;
+}
+
+function createHistoryObject(squares) {
+	console.adlog(2, 'creating history object, squares:', squares, '_gameLogic:', global._gameLogic);
+	return { squares: squares, set: { _gameLogic: structuredClone(global._gameLogic) } };
+}
+
+function restoreFromHistoryObject(obj) {
+	console.adlog(2, 'restoring from history object:', obj);
+	for (const name in obj.set) {
+		console.adlog(3, `restoring historyObj[${JSON.stringify(name)}]:`, obj.set[name]);
+		global[name] = obj.set[name];
+	}
+	return obj.squares;
 }
 
 function setupData(theme) {
 	this.type = "chessdata";
-	this.history = [Array(64).fill(null)];
+	this.history = [createHistoryObject(Array(64).fill(null))];
 	this.setHistory = (s) => this.history = s;
 	this.currentMove = 0;
 	this.setCurrentMove = (s) => this.currentMove = s;
@@ -266,8 +308,8 @@ function setupData(theme) {
 		row[6] = theme.getPiece(color, 'knight');
 		row[7] = theme.getPiece(color, 'rook');
 		for (let i = 0; i < 8; i++) {
-			this.history[0][(color === 'dark') ? i : (i + 56)] = row[i];
-			this.history[0][(color === 'dark') ? (i + 8) : (i + 48)] = theme.getPiece(color, 'pawn');
+			this.history[0].squares[(color === 'dark') ? i : (i + 56)] = row[i];
+			this.history[0].squares[(color === 'dark') ? (i + 8) : (i + 48)] = theme.getPiece(color, 'pawn');
 		}
 	}
 }
