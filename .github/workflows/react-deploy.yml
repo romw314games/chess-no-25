@@ -97,4 +97,3 @@ jobs:
         run: ./butler push html5 ${{ vars.ITCH_IO_USERNAME }}/${{ vars.ITCH_IO_GAMEID }}:html5
         env:
           BUTLER_API_KEY: ${{ secrets.ITCH_IO_API_KEY }}
-

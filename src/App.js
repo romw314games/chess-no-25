@@ -10,12 +10,15 @@ import { Theme, getImage } from './Theme';
 import * as gameLogic from './gameLogic.js';
 import './App.css';
 
-function Square({ value, onSquareClick, selectedPiece, index, theme }) {
+function Square({ value, onSquareClick, selectedPiece, index, theme, squares }) {
 	const isDark = ((Math.floor(index / 8) % 2) !== (index % 2));
 	const color = isDark ? theme.square.darkColor : theme.square.lightColor;
 	const style = {
-		backgroundColor: color[Number(selectedPiece === index)]
+		backgroundColor: color[0]
 	};
+
+	if (selectedPiece)
+		style.backgroundColor = color[Number(selectedPiece === index) + (Number(selectedPiece && gameLogic.canBeMoved(selectedPiece, index, squares)) * 2)]
 
 	console.dlog(4, 'render square log', {
 		value: value,
@@ -24,26 +27,27 @@ function Square({ value, onSquareClick, selectedPiece, index, theme }) {
 		index: index,
 		theme: theme,
 		global: global,
-		setGlobal: (n, v) => global[n] = v
+		setGlobal: (n, v) => global[n] = v,
+		squares: squares
 	});
 	
 	value = global.sqValue ? eval(global.sqValue) : getImage(value);
 
-	return <button className="square" onClick={onSquareClick} style={style}>{value}</button>;
+	return <button className="unselectable square" onClick={onSquareClick} style={style}>{value}</button>;
 }
 
 function BoardRow({ index, onSquareClick, squares, selectedPiece, theme }) {
 	index *= 8;
 	return (
 		<div className="board-row">
-			<Square value={squares[index]} onSquareClick={() => onSquareClick(index+0)} selectedPiece={selectedPiece} index={index} theme={theme} />
-			<Square value={squares[index+1]} onSquareClick={() => onSquareClick(index+1)} selectedPiece={selectedPiece} index={index+1} theme={theme} />
-			<Square value={squares[index+2]} onSquareClick={() => onSquareClick(index+2)} selectedPiece={selectedPiece} index={index+2} theme={theme} />
-			<Square value={squares[index+3]} onSquareClick={() => onSquareClick(index+3)} selectedPiece={selectedPiece} index={index+3} theme={theme} />
-			<Square value={squares[index+4]} onSquareClick={() => onSquareClick(index+4)} selectedPiece={selectedPiece} index={index+4} theme={theme} />
-			<Square value={squares[index+5]} onSquareClick={() => onSquareClick(index+5)} selectedPiece={selectedPiece} index={index+5} theme={theme} />
-			<Square value={squares[index+6]} onSquareClick={() => onSquareClick(index+6)} selectedPiece={selectedPiece} index={index+6} theme={theme} />
-			<Square value={squares[index+7]} onSquareClick={() => onSquareClick(index+7)} selectedPiece={selectedPiece} index={index+7} theme={theme} />
+			<Square value={squares[index]} onSquareClick={() => onSquareClick(index+0)} selectedPiece={selectedPiece} index={index} theme={theme} squares={squares} />
+			<Square value={squares[index+1]} onSquareClick={() => onSquareClick(index+1)} selectedPiece={selectedPiece} index={index+1} theme={theme} squares={squares} />
+			<Square value={squares[index+2]} onSquareClick={() => onSquareClick(index+2)} selectedPiece={selectedPiece} index={index+2} theme={theme} squares={squares} />
+			<Square value={squares[index+3]} onSquareClick={() => onSquareClick(index+3)} selectedPiece={selectedPiece} index={index+3} theme={theme} squares={squares} />
+			<Square value={squares[index+4]} onSquareClick={() => onSquareClick(index+4)} selectedPiece={selectedPiece} index={index+4} theme={theme} squares={squares} />
+			<Square value={squares[index+5]} onSquareClick={() => onSquareClick(index+5)} selectedPiece={selectedPiece} index={index+5} theme={theme} squares={squares} />
+			<Square value={squares[index+6]} onSquareClick={() => onSquareClick(index+6)} selectedPiece={selectedPiece} index={index+6} theme={theme} squares={squares} />
+			<Square value={squares[index+7]} onSquareClick={() => onSquareClick(index+7)} selectedPiece={selectedPiece} index={index+7} theme={theme} squares={squares} />
 		</div>
 	);
 }
@@ -59,7 +63,7 @@ function Board({ theme, data, onPlay }) {
 	
 	function handleClick(index) {
 		const nextSquares = squares.slice();
-		let logData = {
+		const logData = {
 			selectedPiece: selectedPiece ? { x: selectedPiece % 8, y: Math.floor(selectedPiece / 8) } : null,
 			position: index ? { x: index % 8, y: Math.floor(index / 8) } : null,
 			selectedValue: selectedPiece ? squares[selectedPiece] : null,
@@ -86,7 +90,7 @@ function Board({ theme, data, onPlay }) {
 			console.dlog(2, "selecting piece");
 			setSelectedPiece(index);
 		}
-		else if (gameLogic.canBeMoved(selectedPiece, index, squares)) {
+		else if (selectedPiece !== null && gameLogic.canBeMoved(selectedPiece, index, squares)) {
 			console.dlog(2, "moving piece");
 			nextSquares[selectedPiece] = null;
 			nextSquares[index] = squares[selectedPiece];
@@ -146,7 +150,7 @@ function Game({ theme, data }) {
 	}
 
 	const promotions = {};
-	for (let promotion of ['queen', 'rook', 'bishop', 'knight'])
+	for (const promotion of ['queen', 'rook', 'bishop', 'knight'])
 		promotions[promotion] = () => promotePiece(promoting, promotion);
 
 	function undoMove() {
@@ -189,7 +193,15 @@ function App({ setupData }) {
 		return `global.sqValue set to ${s} : re-render trigerred`;
 	}
 
-	function debugLogOption() {
+	global.loglevel = (s) => {
+		if (s) {
+			global.uselog = s;
+			return `global.uselog set to ${s}`;
+		}
+		return global.uselog;
+	}
+
+	global.debugLogOption = () => {
 		console.log(`set debug logging:
 @
 	right-click on the object -> store object as global variable
@@ -224,37 +236,43 @@ re-render the game:
 				<Helmet>
 					<title>Chess No. 25</title>
 				</Helmet>
-				<h1>Chess No. 25</h1>
+				<h1 className="unselectable">Chess No. 25</h1>
 				<Game theme={theme} data={setupData} />
 			</div>
 		</HelmetProvider>
 	);
 }
 
-function setupData(theme) {
-	this.type = "chessdata";
-	this.history = [Array(64).fill(null)];
-	this.setHistory = (s) => this.history = s;
-	this.currentMove = 0;
-	this.setCurrentMove = (s) => this.currentMove = s;
-	this.theme = theme;
-	
-	for (let color of ['light', 'dark']) {
-		let row = Array(8).fill(null);
-		row[0] = theme.getPiece(color, 'rook');
-		row[1] = theme.getPiece(color, 'knight');
-		row[2] = theme.getPiece(color, 'bishop');
-		row[3] = theme.getPiece(color, 'queen');
-		row[4] = theme.getPiece(color, 'king');
-		row[5] = theme.getPiece(color, 'bishop');
-		row[6] = theme.getPiece(color, 'knight');
-		row[7] = theme.getPiece(color, 'rook');
-		for (let i = 0; i < 8; i++) {
-			this.history[0][(color === 'dark') ? i : (i + 56)] = row[i];
-			this.history[0][(color === 'dark') ? (i + 8) : (i + 48)] = theme.getPiece(color, 'pawn');
+function DefaultApp() {
+	return <App setupData={new setupData(Theme('default'))} />;
+}
+
+class setupData {
+	constructor(theme) {
+		this.type = "chessdata";
+		this.history = [Array(64).fill(null)];
+		this.setHistory = (s) => this.history = s;
+		this.currentMove = 0;
+		this.setCurrentMove = (s) => this.currentMove = s;
+		this.theme = theme;
+		
+		for (const color of ['light', 'dark']) {
+			const row = Array(8).fill(null);
+			row[0] = theme.getPiece(color, 'rook');
+			row[1] = theme.getPiece(color, 'knight');
+			row[2] = theme.getPiece(color, 'bishop');
+			row[3] = theme.getPiece(color, 'queen');
+			row[4] = theme.getPiece(color, 'king');
+			row[5] = theme.getPiece(color, 'bishop');
+			row[6] = theme.getPiece(color, 'knight');
+			row[7] = theme.getPiece(color, 'rook');
+			for (let i = 0; i < 8; i++) {
+				this.history[0][(color === 'dark') ? i : (i + 56)] = row[i];
+				this.history[0][(color === 'dark') ? (i + 8) : (i + 48)] = theme.getPiece(color, 'pawn');
+			}
 		}
 	}
 }
 
-export { setupData };
+export { setupData, DefaultApp };
 export default App;
