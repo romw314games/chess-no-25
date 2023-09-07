@@ -24,7 +24,7 @@ on:
 permissions:
   contents: read
 
-name: Scan analyze workflow
+name: Contrast Scan analyze workflow
 jobs:
   build-and-scan:
     permissions:
