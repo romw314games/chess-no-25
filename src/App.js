@@ -72,7 +72,7 @@ function Board({ theme, data, onPlay, onRevert }) {
 	
 	function handleClick(index) {
 		const nextSquares = squares.slice();
-		let logData = {
+		const logData = {
 			selectedPiece: selectedPiece ? { x: selectedPiece % 8, y: Math.floor(selectedPiece / 8) } : null,
 			position: index ? { x: index % 8, y: Math.floor(index / 8) } : null,
 			selectedValue: selectedPiece ? squares[selectedPiece] : null,
@@ -186,7 +186,7 @@ function Game({ theme, data }) {
 	}
 
 	const promotions = {};
-	for (let promotion of ['queen', 'rook', 'bishop', 'knight'])
+	for (const promotion of ['queen', 'rook', 'bishop', 'knight'])
 		promotions[promotion] = () => promotePiece(promoting, promotion);
 
 	function undoMove() {
@@ -318,27 +318,29 @@ function restoreFromHistoryObject(obj) {
 	return obj.squares;
 }
 
-function setupData(theme) {
-	this.type = "chessdata";
-	this.history = [createHistoryObject(Array(64).fill(null))];
-	this.setHistory = (s) => this.history = s;
-	this.currentMove = 0;
-	this.setCurrentMove = (s) => this.currentMove = s;
-	this.theme = theme;
-	
-	for (let color of ['light', 'dark']) {
-		let row = Array(8).fill(null);
-		row[0] = theme.getPiece(color, 'rook');
-		row[1] = theme.getPiece(color, 'knight');
-		row[2] = theme.getPiece(color, 'bishop');
-		row[3] = theme.getPiece(color, 'queen');
-		row[4] = theme.getPiece(color, 'king');
-		row[5] = theme.getPiece(color, 'bishop');
-		row[6] = theme.getPiece(color, 'knight');
-		row[7] = theme.getPiece(color, 'rook');
-		for (let i = 0; i < 8; i++) {
-			this.history[0].squares[(color === 'dark') ? i : (i + 56)] = row[i];
-			this.history[0].squares[(color === 'dark') ? (i + 8) : (i + 48)] = theme.getPiece(color, 'pawn');
+class setupData {
+	constructor(theme) {
+		this.type = "chessdata";
+		this.history = [Array(64).fill(null)];
+		this.setHistory = (s) => this.history = s;
+		this.currentMove = 0;
+		this.setCurrentMove = (s) => this.currentMove = s;
+		this.theme = theme;
+		
+		for (const color of ['light', 'dark']) {
+			const row = Array(8).fill(null);
+			row[0] = theme.getPiece(color, 'rook');
+			row[1] = theme.getPiece(color, 'knight');
+			row[2] = theme.getPiece(color, 'bishop');
+			row[3] = theme.getPiece(color, 'queen');
+			row[4] = theme.getPiece(color, 'king');
+			row[5] = theme.getPiece(color, 'bishop');
+			row[6] = theme.getPiece(color, 'knight');
+			row[7] = theme.getPiece(color, 'rook');
+			for (let i = 0; i < 8; i++) {
+				this.history[0][(color === 'dark') ? i : (i + 56)] = row[i];
+				this.history[0][(color === 'dark') ? (i + 8) : (i + 48)] = theme.getPiece(color, 'pawn');
+			}
 		}
 	}
 }

@@ -18,7 +18,7 @@ function ThemeData(theme, options = {}) {
 		dark: {}
 	};
 	this.getPiece = (isLight, name) => {
-		let player = (isLight === true || isLight === 'light') ? 'light' : 'dark';
+		const player = (isLight === true || isLight === 'light') ? 'light' : 'dark';
 		return this.pieces[player][name];
 	};
 	this.game = theme.game ?? {
