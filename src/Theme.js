@@ -1,8 +1,8 @@
-import './Theme.css';
+import styles from './Theme.module.css';
 import themes from './themes.json';
 
 function getImage(piece) {
-	return piece ? <img className="square-value" src={piece.image} alt={piece.fullName} /> : piece;
+	return piece ? <img className={styles.squareValue} src={piece.image} alt={piece.fullName} /> : piece;
 }
 
 function pieceIs(piece, color, name) {

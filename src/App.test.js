@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DefaultApp } from './App';
+import styles from './App.module.css';
 import './debug';
 
 describe('DefaultApp', () => {
@@ -8,7 +9,7 @@ describe('DefaultApp', () => {
 		render(<DefaultApp />);
 		const appDiv = screen.getByTestId('app-div');
 		expect(appDiv).toBeInTheDocument();
-		expect(appDiv).toHaveClass('App');
+		expect(appDiv).toHaveClass(styles.App);
 		expect(appDiv).not.toBeEmptyDOMElement();
 	});
 });

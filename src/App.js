@@ -3,7 +3,7 @@ import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import { Theme, getImage } from './Theme';
 import * as gameLogic from './gameLogic.js';
-import './App.css';
+import styles from './App.module.css';
 import { DebugRunContext } from './DebugRunContext';
 
 function Square({ value, onSquareClick, selectedPiece, index, theme, squares, testid }) {
@@ -18,7 +18,7 @@ function Square({ value, onSquareClick, selectedPiece, index, theme, squares, te
 	if (selectedPiece) {
 		bcIndexSteps.push([Number(selectedPiece === index), 'x: 0 or 1: check if {{index}} piece is selected']);
 		bcIndexSteps.push([Boolean(selectedPiece), 'a: boolean: check if any piece is selected']);
-		bcIndexSteps.push([bcIndexSteps[1][0] ? gameLogic.canBeMoved(selectedPiece, index, squares) : false, 'b: if a, then check if piece can be moved to {{index}}, else false']);
+		bcIndexSteps.push([bcIndexSteps[1][0] ? gameLogic.moveCanBePlayed(selectedPiece, index, squares) : false, 'b: if a, then check if piece can be moved to {{index}}, else false']);
 		bcIndexSteps.push([bcIndexSteps[2][0] * 2, 'y: b * 2']);
 		bcIndexSteps.push([bcIndexSteps[0][0] + bcIndexSteps[3][0], 'bcIndex: x + y']);
 		bcIndex = bcIndexSteps[bcIndexSteps.length - 1][0];
@@ -42,27 +42,27 @@ function Square({ value, onSquareClick, selectedPiece, index, theme, squares, te
 	
 	value = global.sqValue ? eval(global.sqValue) : getImage(value);
 
-	return <button className="unselectable square" onClick={onSquareClick} style={style} data-testid={testid}>{value}</button>;
+	return <button className={`${styles.unselectable} ${styles.square}`} onClick={onSquareClick} style={style} data-testid={testid}>{value}</button>;
 }
 
 function BoardRow({ index, onSquareClick, squares, selectedPiece, theme }) {
 	const rowIndex = index;
 	index *= 8;
 	return (
-		<div className="board-row">
-			<Square value={squares[index]} onSquareClick={() => onSquareClick(index+0)} selectedPiece={selectedPiece} index={index} theme={theme} squares={squares} testid={`0/${rowIndex}`} />
-			<Square value={squares[index+1]} onSquareClick={() => onSquareClick(index+1)} selectedPiece={selectedPiece} index={index+1} theme={theme} squares={squares} testid={`1/${rowIndex}`} />
-			<Square value={squares[index+2]} onSquareClick={() => onSquareClick(index+2)} selectedPiece={selectedPiece} index={index+2} theme={theme} squares={squares} testid={`2/${rowIndex}`} />
-			<Square value={squares[index+3]} onSquareClick={() => onSquareClick(index+3)} selectedPiece={selectedPiece} index={index+3} theme={theme} squares={squares} testid={`3/${rowIndex}`} />
-			<Square value={squares[index+4]} onSquareClick={() => onSquareClick(index+4)} selectedPiece={selectedPiece} index={index+4} theme={theme} squares={squares} testid={`4/${rowIndex}`} />
-			<Square value={squares[index+5]} onSquareClick={() => onSquareClick(index+5)} selectedPiece={selectedPiece} index={index+5} theme={theme} squares={squares} testid={`5/${rowIndex}`} />
-			<Square value={squares[index+6]} onSquareClick={() => onSquareClick(index+6)} selectedPiece={selectedPiece} index={index+6} theme={theme} squares={squares} testid={`6/${rowIndex}`} />
-			<Square value={squares[index+7]} onSquareClick={() => onSquareClick(index+7)} selectedPiece={selectedPiece} index={index+7} theme={theme} squares={squares} testid={`7/${rowIndex}`} />
+		<div className={styles.boardRow}>
+			<Square value={squares[index+0]} onSquareClick={() => onSquareClick(index+0)} selectedPiece={selectedPiece} index={index+0} theme={theme} squares={squares} data-testid={`0/${rowIndex}`} />
+			<Square value={squares[index+1]} onSquareClick={() => onSquareClick(index+1)} selectedPiece={selectedPiece} index={index+1} theme={theme} squares={squares} data-testid={`1/${rowIndex}`} />
+			<Square value={squares[index+2]} onSquareClick={() => onSquareClick(index+2)} selectedPiece={selectedPiece} index={index+2} theme={theme} squares={squares} data-testid={`2/${rowIndex}`} />
+			<Square value={squares[index+3]} onSquareClick={() => onSquareClick(index+3)} selectedPiece={selectedPiece} index={index+3} theme={theme} squares={squares} data-testid={`3/${rowIndex}`} />
+			<Square value={squares[index+4]} onSquareClick={() => onSquareClick(index+4)} selectedPiece={selectedPiece} index={index+4} theme={theme} squares={squares} data-testid={`4/${rowIndex}`} />
+			<Square value={squares[index+5]} onSquareClick={() => onSquareClick(index+5)} selectedPiece={selectedPiece} index={index+5} theme={theme} squares={squares} data-testid={`5/${rowIndex}`} />
+			<Square value={squares[index+6]} onSquareClick={() => onSquareClick(index+6)} selectedPiece={selectedPiece} index={index+6} theme={theme} squares={squares} data-testid={`6/${rowIndex}`} />
+			<Square value={squares[index+7]} onSquareClick={() => onSquareClick(index+7)} selectedPiece={selectedPiece} index={index+7} theme={theme} squares={squares} data-testid={`7/${rowIndex}`} />
 		</div>
 	);
 }
 
-function Board({ theme, data, onPlay }) {
+function Board({ theme, data, onPlay, onRevert }) {
 	const logrun = useContext(DebugRunContext);
 	console.dlog(logrun, 3, 'render data write', data);
 
@@ -90,8 +90,11 @@ function Board({ theme, data, onPlay }) {
 			chessData: data
 		};
 		logData.conditions._1_select &= !logData.conditions._0_unselect;
-		logData.conditions._2_move &= logData.conditions._1_select;
+		logData.conditions._2_move &= !logData.conditions._1_select;
 		console.dlog(logrun, 1, "board click update", logData);
+
+		const toMove = (data.history.length % 2) ? 'light' : 'dark';
+		console.dlog(logrun, 2, 'toMove log', toMove);
 
 		if (selectedPiece === index) {
 			console.dlog(logrun, 2, "unselecting piece");
@@ -99,6 +102,10 @@ function Board({ theme, data, onPlay }) {
 		}
 		else if (selectedPiece === null && squares[index] !== null) {
 			console.dlog(logrun, 2, "selecting piece");
+			if (squares[index].player !== toMove) {
+				console.dlog(logrun, 1, 'cancelling selection, bad player');
+				return;
+			}
 			setSelectedPiece(index);
 		}
 		else if (selectedPiece !== null) {
@@ -108,6 +115,17 @@ function Board({ theme, data, onPlay }) {
 				nextSquares[selectedPiece] = null;
 				nextSquares[index] = squares[selectedPiece];
 				doMoveExtra((i, v) => nextSquares[i] = v);
+				let king;
+				for (let i = 0; i < squares.length; i++)
+					if (squares[i] && squares[i].fullName === `${toMove} king`) {
+						king = i;
+						break;
+					}
+				console.dlog(logrun, 2, 'king log', gameLogic.index2pos(king));
+				if (gameLogic.isKingAttacked(king, nextSquares)) {
+					console.dlog(logrun, 2, 'cancelling move, king is attacked');
+					return;
+				}
 				onPlay(selectedPiece, index, nextSquares);
 				setSelectedPiece(null);
 			}
@@ -119,7 +137,7 @@ function Board({ theme, data, onPlay }) {
 	global.chess.advanced = data;
 
 	return (
-		<div className="board" style={theme.board.style}>
+		<div className={styles.board} style={theme.board.style}>
 			<BoardRow index='0' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} theme={theme} />
 			<BoardRow index='1' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} theme={theme} />
 			<BoardRow index='2' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} theme={theme} />
@@ -156,6 +174,7 @@ function Game({ theme, data }) {
 		reRender(Math.random());
 		global.chess.squares = nextSquares;
 		global.chess.history = nextHistory;
+		global.chess.currentMove = data.currentMove;
 	}
 
 	function promotePiece(index, piece) {
@@ -186,10 +205,20 @@ function Game({ theme, data }) {
 		handlePlay(0, 0, data.history[0].squares, true);
 	}, []);
 
+	if (gameLogic.checkMate((data.history.length % 2) ? 'light' : 'dark', data.history[data.currentMove].squares)) {
+		return (
+			<div className={styles.game} style={theme.game.style}>
+				<p><strong>It&apos;s checkmate.</strong></p>
+				<p><strong><span>{(data.history.length % 2) ? 'Black' : 'White'}</span> won!</strong></p>
+			</div>
+		);
+	}
+
 	return (
-		<div className="game" style={theme.game.style}>
-			<Board theme={theme} data={data} onPlay={handlePlay} />
-			<Button className="menu-button" onClick={undoMove} variant="contained" color="primary" disabled={data.history.length <= 1}>Undo</Button>
+		<div className={styles.game} style={theme.game.style}>
+			<Board theme={theme} data={data} onPlay={handlePlay} onRevert={undoMove} />
+			<div className={styles.unselectable}>{(data.history.length % 2) ? 'White' : 'Black'}&nbsp;to&nbsp;move</div>
+			<Button className={styles.menuButton} onClick={undoMove} variant="contained" color="primary" disabled={data.history.length <= 1}>Undo</Button>
 			<Dialog open={Boolean(promoting) || (promoting === 0)}>
 				<DialogTitle>Promotion</DialogTitle>
 				<DialogContent><DialogContentText>Please select piece:</DialogContentText></DialogContent>
@@ -260,11 +289,11 @@ re-render the game:
 
 	return (
 		<HelmetProvider>
-			<div className="App" style={theme.style} data-testid="app-div">
+			<div className={styles.App} style={theme.style} data-testid="app-div">
 				<Helmet>
 					<title>Chess No. 25</title>
 				</Helmet>
-				<h1 className="unselectable">Chess No. 25</h1>
+				<h1 className={styles.unselectable}>Chess No. 25</h1>
 				<Game theme={theme} data={setupData} />
 			</div>
 		</HelmetProvider>
