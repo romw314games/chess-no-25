@@ -180,7 +180,7 @@ function Game({ theme, data }) {
 
 	function promotePiece(index, piece) {
 		console.dlog(logrun, 1, `promoting pawn on ${index} to ${piece}`);
-		const nextSquares = data.history[data.currentMove].slice();
+		const nextSquares = data.history[data.currentMove].squares.slice();
 		nextSquares[index] = theme.getPiece(index < 8, piece);
 		handlePlay(index, index, nextSquares, true);
 		setPromoting(null);
