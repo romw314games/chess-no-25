@@ -20,7 +20,7 @@ setLg(f => f());
 global.error = null;
 global.catch = (error) => global.error = error;
 
-const data = new setupData(Theme('default', getLg));
+const data = new setupData(Theme('dark', getLg));
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
 	<ErrorHandler error={global.error}>

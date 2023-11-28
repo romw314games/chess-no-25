@@ -32,6 +32,8 @@ function ThemeData(theme, options = {}) {
 		darkColor: [ "lightgray", "darkred", "dimgray" ]
 	}
 	this.style = theme.style ?? {};
+	this.bodyStyle = theme.bodyStyle ?? {};
+	this.images = theme.images ?? `%-${this.name}-@.png`;
 
 	// pieces
 	if (options.findPieces ?? true) {
@@ -39,7 +41,7 @@ function ThemeData(theme, options = {}) {
 			for (let color of ['light', 'dark'])
 				for (let piece of ['king', 'queen', 'bishop', 'knight', 'rook', 'pawn'])
 					this.pieces[color][piece] = {
-						image: require('./img/' + piece + '-' + theme.name + '-' + color + '.png'),
+						image: require('./img/' + this.images.replaceAll('%', piece).replaceAll('@', color)),
 						fullName: `${color} ${piece}`,
 						theme: theme.name,
 						name: piece,

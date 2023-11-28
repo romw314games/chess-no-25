@@ -5,6 +5,7 @@ import { Theme, getImage } from './Theme';
 import * as gameLogic from './gameLogic.js';
 import styles from './App.module.css';
 import { DebugRunContext } from './DebugRunContext';
+import clone from 'just-clone';
 
 function Square({ value, onSquareClick, selectedPiece, index, theme, squares, testid }) {
 	const isDark = ((Math.floor(index / 8) % 2) !== (index % 2));
@@ -51,14 +52,14 @@ function BoardRow({ index, onSquareClick, squares, selectedPiece, theme }) {
 	index *= 8;
 	return (
 		<div className={styles.boardRow}>
-			<Square value={squares[index+0]} onSquareClick={() => onSquareClick(index+0)} selectedPiece={selectedPiece} index={index+0} theme={theme} squares={squares} data-testid={`0/${rowIndex}`} />
-			<Square value={squares[index+1]} onSquareClick={() => onSquareClick(index+1)} selectedPiece={selectedPiece} index={index+1} theme={theme} squares={squares} data-testid={`1/${rowIndex}`} />
-			<Square value={squares[index+2]} onSquareClick={() => onSquareClick(index+2)} selectedPiece={selectedPiece} index={index+2} theme={theme} squares={squares} data-testid={`2/${rowIndex}`} />
-			<Square value={squares[index+3]} onSquareClick={() => onSquareClick(index+3)} selectedPiece={selectedPiece} index={index+3} theme={theme} squares={squares} data-testid={`3/${rowIndex}`} />
-			<Square value={squares[index+4]} onSquareClick={() => onSquareClick(index+4)} selectedPiece={selectedPiece} index={index+4} theme={theme} squares={squares} data-testid={`4/${rowIndex}`} />
-			<Square value={squares[index+5]} onSquareClick={() => onSquareClick(index+5)} selectedPiece={selectedPiece} index={index+5} theme={theme} squares={squares} data-testid={`5/${rowIndex}`} />
-			<Square value={squares[index+6]} onSquareClick={() => onSquareClick(index+6)} selectedPiece={selectedPiece} index={index+6} theme={theme} squares={squares} data-testid={`6/${rowIndex}`} />
-			<Square value={squares[index+7]} onSquareClick={() => onSquareClick(index+7)} selectedPiece={selectedPiece} index={index+7} theme={theme} squares={squares} data-testid={`7/${rowIndex}`} />
+			<Square value={squares[index+0]} onSquareClick={() => onSquareClick(index+0)} selectedPiece={selectedPiece} index={index+0} theme={theme} squares={squares} testid={`0/${rowIndex}`} />
+			<Square value={squares[index+1]} onSquareClick={() => onSquareClick(index+1)} selectedPiece={selectedPiece} index={index+1} theme={theme} squares={squares} testid={`1/${rowIndex}`} />
+			<Square value={squares[index+2]} onSquareClick={() => onSquareClick(index+2)} selectedPiece={selectedPiece} index={index+2} theme={theme} squares={squares} testid={`2/${rowIndex}`} />
+			<Square value={squares[index+3]} onSquareClick={() => onSquareClick(index+3)} selectedPiece={selectedPiece} index={index+3} theme={theme} squares={squares} testid={`3/${rowIndex}`} />
+			<Square value={squares[index+4]} onSquareClick={() => onSquareClick(index+4)} selectedPiece={selectedPiece} index={index+4} theme={theme} squares={squares} testid={`4/${rowIndex}`} />
+			<Square value={squares[index+5]} onSquareClick={() => onSquareClick(index+5)} selectedPiece={selectedPiece} index={index+5} theme={theme} squares={squares} testid={`5/${rowIndex}`} />
+			<Square value={squares[index+6]} onSquareClick={() => onSquareClick(index+6)} selectedPiece={selectedPiece} index={index+6} theme={theme} squares={squares} testid={`6/${rowIndex}`} />
+			<Square value={squares[index+7]} onSquareClick={() => onSquareClick(index+7)} selectedPiece={selectedPiece} index={index+7} theme={theme} squares={squares} testid={`7/${rowIndex}`} />
 		</div>
 	);
 }
@@ -290,7 +291,13 @@ re-render the game:
 			setGlobal: (n, v) => global[n] = v,
 			reRender: () => reRender(Math.random())
 		});
-	}
+	};
+
+	useEffect(() => {
+		for (const key in theme.bodyStyle)
+			document.body.style[key] = theme.bodyStyle[key];
+		console.adlog(1, 'set body style to', theme.bodyStyle);
+	}, [theme]);
 
 	return (
 		<HelmetProvider>
@@ -311,7 +318,7 @@ function DefaultApp() {
 
 function createHistoryObject(squares) {
 	console.adlog(2, 'creating history object, squares:', squares, '_gameLogic:', global._gameLogic);
-	return { squares: squares, set: { _gameLogic: structuredClone(global._gameLogic) } };
+	return { squares: squares, set: { _gameLogic: clone(global._gameLogic) } };
 }
 
 function restoreFromHistoryObject(obj) {
@@ -337,7 +344,7 @@ class setupData {
 	constructor(theme) {
 		gameLogic.whereCanMove(Array(64).fill(null), {}, 0, 0); // initialize _gameLogic, if it not exists already
 
-		this.history = [{ squares: Array(64).fill(null), set: { _gameLogic: global._gameLogic } }];
+		this.history = [{ squares: Array(64).fill(null), set: { _gameLogic: clone(global._gameLogic) } }];
 		this.theme = theme;
 		
 		for (const color of ['light', 'dark']) {

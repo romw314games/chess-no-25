@@ -1,5 +1,25 @@
 {
 	"themes": {
-		"default": {}
+		"default": {},
+		"dark": {
+			"bodyStyle": {
+				"backgroundColor": "black",
+				"color": "white",
+				"opacity": "0.8"
+			},
+			"images": "%-default-@.png",
+			"square": {
+				"lightColor": [
+					"#333333",
+					"darkgreen",
+					"orange"
+				],
+				"darkColor": [
+					"#111111",
+					"darkgreen",
+					"darkred"
+				]
+			}
+		}
 	}
 }
