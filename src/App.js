@@ -39,7 +39,8 @@ function Square({ value, onSquareClick, selectedPiece, index, theme, squares, te
 		bcIndexSteps: bcIndexSteps,
 		colors: color
 	});
-	
+
+	// eslint-disable-next-line no-eval
 	value = global.sqValue ? eval(global.sqValue) : getImage(value);
 
 	return <button className={`${styles.unselectable} ${styles.square}`} onClick={onSquareClick} style={style} data-testid={testid}>{value}</button>;
@@ -67,7 +68,6 @@ function Board({ theme, data, onPlay, onRevert }) {
 	console.dlog(logrun, 3, 'render data write', data);
 
 	const [selectedPiece, setSelectedPiece] = useState(null);
-	const [lightIsNext, setLightIsNext] = useState(true);
 	const squares = data.history[data.currentMove].squares.slice();
 	
 	function handleClick(index) {
@@ -87,7 +87,8 @@ function Board({ theme, data, onPlay, onRevert }) {
 				_1_select: Boolean(selectedPiece === null && squares[index] !== null),
 				_2_move: Boolean(squares[index] !== null)
 			},
-			chessData: data
+			chessData: data,
+			rightNs: nextSquares
 		};
 		logData.conditions._1_select &= !logData.conditions._0_unselect;
 		logData.conditions._2_move &= !logData.conditions._1_select;
@@ -116,8 +117,8 @@ function Board({ theme, data, onPlay, onRevert }) {
 				nextSquares[index] = squares[selectedPiece];
 				doMoveExtra((i, v) => nextSquares[i] = v);
 				let king;
-				for (let i = 0; i < squares.length; i++)
-					if (squares[i] && squares[i].fullName === `${toMove} king`) {
+				for (let i = 0; i < nextSquares.length; i++)
+					if (nextSquares[i] && nextSquares[i].fullName === `${toMove} king`) {
 						king = i;
 						break;
 					}
@@ -203,7 +204,10 @@ function Game({ theme, data }) {
 		gameLogic.whereCanMove(Array(64).fill(null), {}, 0, 0);
 		console.adlog(1, 'initialized gameLogic, gameLogic internal data write', global._gameLogic);
 		handlePlay(0, 0, data.history[0].squares, true);
-	}, []);
+	}, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+	if (!data.history[data.currentMove].squares)
+		return <div>Loading...</div>;
 
 	if (gameLogic.checkMate((data.history.length % 2) ? 'light' : 'dark', data.history[data.currentMove].squares)) {
 		return (
@@ -319,12 +323,20 @@ function restoreFromHistoryObject(obj) {
 }
 
 class setupData {
+	type = "chessdata";
+	history = [];
+	setHistory(s) {
+		this.history = s;
+	}
+	currentMove = 0;
+	setCurrentMove(s) {
+		this.currentMove = s;
+	}
+	theme;
 	constructor(theme) {
-		this.type = "chessdata";
-		this.history = [Array(64).fill(null)];
-		this.setHistory = (s) => this.history = s;
-		this.currentMove = 0;
-		this.setCurrentMove = (s) => this.currentMove = s;
+		gameLogic.whereCanMove(Array(64).fill(null), {}, 0, 0); // initialize _gameLogic, if it not exists already
+
+		this.history = [{ squares: Array(64).fill(null), set: { _gameLogic: global._gameLogic } }];
 		this.theme = theme;
 		
 		for (const color of ['light', 'dark']) {
@@ -338,10 +350,12 @@ class setupData {
 			row[6] = theme.getPiece(color, 'knight');
 			row[7] = theme.getPiece(color, 'rook');
 			for (let i = 0; i < 8; i++) {
-				this.history[0][(color === 'dark') ? i : (i + 56)] = row[i];
-				this.history[0][(color === 'dark') ? (i + 8) : (i + 48)] = theme.getPiece(color, 'pawn');
+				this.history[0].squares[(color === 'dark') ? i : (i + 56)] = row[i];
+				this.history[0].squares[(color === 'dark') ? (i + 8) : (i + 48)] = theme.getPiece(color, 'pawn');
 			}
 		}
+
+		global.chessSetup = this;
 	}
 }
 

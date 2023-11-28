@@ -1,9 +1,10 @@
-import { useState, useEffect, PureComponent } from 'react';
+import { useState, useEffect } from 'react';
 import { Alert, AlertTitle } from '@mui/material';
 
 function ErrorHandler({ error, children }) {
 	const reerror = useState(null)[1];
 	error = global.error;
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	useEffect(() => { setInterval(() => reerror(Math.random()), 100); }, []);
 	if (error) {
 		const lines = error.message.split(/\r?\n/);
