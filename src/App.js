@@ -209,11 +209,12 @@ function Game({ theme, data }) {
 	if (!data.history[data.currentMove].squares)
 		return <div>Loading...</div>;
 
-	if (gameLogic.checkMate((data.history.length % 2) ? 'light' : 'dark', data.history[data.currentMove].squares)) {
+	const checkMate = gameLogic.checkMate((data.history.length % 2) ? 'light' : 'dark', data.history[data.currentMove].squares);
+	if (checkMate) {
 		return (
 			<div className={styles.game} style={theme.game.style}>
-				<p><strong>It&apos;s checkmate.</strong></p>
-				<p><strong><span>{(data.history.length % 2) ? 'Black' : 'White'}</span> won!</strong></p>
+				<p><strong>It&apos;s <span>{checkMate}</span>.</strong></p>
+				<p><strong><span>{checkMate === 'stalemate' ? 'Draw' : ((data.history.length % 2) ? 'Black' : 'White')}</span><span>{checkMate === 'stalemate' ? '' : ' won'}</span>!</strong></p>
 			</div>
 		);
 	}

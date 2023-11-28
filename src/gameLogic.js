@@ -183,7 +183,13 @@ const checkMate = (player, squares) => {
 				return false;
 		}
 	}
-	return true;
+	let king;
+	for (let i = 0; i < squares.length; i++)
+		if (squares[i] && squares[i].fullName === `${player} king`) {
+			king = i;
+			break;
+		}
+	return isKingAttacked(king, squares) ? 'checkmate' : 'stalemate';
 };
 
 global.unbug1 = (p) => global.debug1 = p ?? true;
