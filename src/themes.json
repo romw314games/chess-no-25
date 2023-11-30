@@ -20,6 +20,25 @@
 					"darkred"
 				]
 			}
+		},
+		"bw": {
+			"bodyStyle": {
+				"backgroundColor": "white",
+				"color": "black"
+			},
+			"images": "%-default-@.png",
+			"square": {
+				"lightColor": [
+					"white",
+					"black",
+					"black"
+				],
+				"darkColor": [
+					"black",
+					"white",
+					"white"
+				]
+			}
 		}
 	}
 }

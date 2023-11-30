@@ -20,7 +20,9 @@ setLg(f => f());
 global.error = null;
 global.catch = (error) => global.error = error;
 
-const data = new setupData(Theme('dark', getLg));
+const theme = new URLSearchParams(window.location.search).get('theme');
+console.adlog(1, 'theme:', theme);
+const data = new setupData(Theme(theme || 'dark', getLg));
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
 	<React.StrictMode>
