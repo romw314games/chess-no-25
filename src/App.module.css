@@ -37,6 +37,15 @@
 	-ms-user-select: none;
 	user-select: none;
 }
+.toolsContainer {
+	height: 500px;
+}
+.tools {
+	position: relative;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+}
 .menuButton {
 	width: 100px;
 	height: 50px;

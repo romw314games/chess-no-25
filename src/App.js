@@ -6,8 +6,9 @@ import * as gameLogic from './gameLogic.js';
 import styles from './App.module.css';
 import { DebugRunContext } from './DebugRunContext';
 import clone from 'just-clone';
+import Columns from 'react-columns';
 
-function Square({ value, onSquareClick, selectedPiece, index, theme, squares, testid }) {
+function Square({ currentMove, value, onSquareClick, selectedPiece, index, theme, squares, testid }) {
 	const isDark = ((Math.floor(index / 8) % 2) !== (index % 2));
 	const color = isDark ? theme.square.darkColor : theme.square.lightColor;
 	const style = {
@@ -19,7 +20,7 @@ function Square({ value, onSquareClick, selectedPiece, index, theme, squares, te
 	if (selectedPiece) {
 		bcIndexSteps.push([Number(selectedPiece === index), 'x: 0 or 1: check if {{index}} piece is selected']);
 		bcIndexSteps.push([Boolean(selectedPiece), 'a: boolean: check if any piece is selected']);
-		bcIndexSteps.push([bcIndexSteps[1][0] ? gameLogic.moveCanBePlayed(selectedPiece, index, squares) : false, 'b: if a, then check if piece can be moved to {{index}}, else false']);
+		bcIndexSteps.push([bcIndexSteps[1][0] ? gameLogic.moveCanBePlayed(currentMove, selectedPiece, index, squares) : false, 'b: if a, then check if piece can be moved to {{index}}, else false']);
 		bcIndexSteps.push([bcIndexSteps[2][0] * 2, 'y: b * 2']);
 		bcIndexSteps.push([bcIndexSteps[0][0] + bcIndexSteps[3][0], 'bcIndex: x + y']);
 		bcIndex = bcIndexSteps[bcIndexSteps.length - 1][0];
@@ -32,8 +33,8 @@ function Square({ value, onSquareClick, selectedPiece, index, theme, squares, te
 		selectedPiece: selectedPiece,
 		index: index,
 		theme: theme,
-		global: global,
-		setGlobal: (n, v) => global[n] = v,
+		window: window,
+		setGlobal: (n, v) => window[n] = v,
 		squares: squares,
 		style: style,
 		bcIndex: bcIndex,
@@ -42,24 +43,24 @@ function Square({ value, onSquareClick, selectedPiece, index, theme, squares, te
 	});
 
 	// eslint-disable-next-line no-eval
-	value = global.sqValue ? eval(global.sqValue) : getImage(value);
+	value = window.sqValue ? eval(window.sqValue) : getImage(value);
 
 	return <button className={`${styles.unselectable} ${styles.square}`} onClick={onSquareClick} style={style} data-testid={testid}>{value}</button>;
 }
 
-function BoardRow({ index, onSquareClick, squares, selectedPiece, theme }) {
+function BoardRow({ move, index, onSquareClick, squares, selectedPiece, theme }) {
 	const rowIndex = index;
 	index *= 8;
 	return (
 		<div className={styles.boardRow}>
-			<Square value={squares[index+0]} onSquareClick={() => onSquareClick(index+0)} selectedPiece={selectedPiece} index={index+0} theme={theme} squares={squares} testid={`0/${rowIndex}`} />
-			<Square value={squares[index+1]} onSquareClick={() => onSquareClick(index+1)} selectedPiece={selectedPiece} index={index+1} theme={theme} squares={squares} testid={`1/${rowIndex}`} />
-			<Square value={squares[index+2]} onSquareClick={() => onSquareClick(index+2)} selectedPiece={selectedPiece} index={index+2} theme={theme} squares={squares} testid={`2/${rowIndex}`} />
-			<Square value={squares[index+3]} onSquareClick={() => onSquareClick(index+3)} selectedPiece={selectedPiece} index={index+3} theme={theme} squares={squares} testid={`3/${rowIndex}`} />
-			<Square value={squares[index+4]} onSquareClick={() => onSquareClick(index+4)} selectedPiece={selectedPiece} index={index+4} theme={theme} squares={squares} testid={`4/${rowIndex}`} />
-			<Square value={squares[index+5]} onSquareClick={() => onSquareClick(index+5)} selectedPiece={selectedPiece} index={index+5} theme={theme} squares={squares} testid={`5/${rowIndex}`} />
-			<Square value={squares[index+6]} onSquareClick={() => onSquareClick(index+6)} selectedPiece={selectedPiece} index={index+6} theme={theme} squares={squares} testid={`6/${rowIndex}`} />
-			<Square value={squares[index+7]} onSquareClick={() => onSquareClick(index+7)} selectedPiece={selectedPiece} index={index+7} theme={theme} squares={squares} testid={`7/${rowIndex}`} />
+			<Square value={squares[index+0]} onSquareClick={() => onSquareClick(index+0)} selectedPiece={selectedPiece} index={index+0} theme={theme} squares={squares} testid={`0/${rowIndex}`} currentMove={move} />
+			<Square value={squares[index+1]} onSquareClick={() => onSquareClick(index+1)} selectedPiece={selectedPiece} index={index+1} theme={theme} squares={squares} testid={`1/${rowIndex}`} currentMove={move} />
+			<Square value={squares[index+2]} onSquareClick={() => onSquareClick(index+2)} selectedPiece={selectedPiece} index={index+2} theme={theme} squares={squares} testid={`2/${rowIndex}`} currentMove={move} />
+			<Square value={squares[index+3]} onSquareClick={() => onSquareClick(index+3)} selectedPiece={selectedPiece} index={index+3} theme={theme} squares={squares} testid={`3/${rowIndex}`} currentMove={move} />
+			<Square value={squares[index+4]} onSquareClick={() => onSquareClick(index+4)} selectedPiece={selectedPiece} index={index+4} theme={theme} squares={squares} testid={`4/${rowIndex}`} currentMove={move} />
+			<Square value={squares[index+5]} onSquareClick={() => onSquareClick(index+5)} selectedPiece={selectedPiece} index={index+5} theme={theme} squares={squares} testid={`5/${rowIndex}`} currentMove={move} />
+			<Square value={squares[index+6]} onSquareClick={() => onSquareClick(index+6)} selectedPiece={selectedPiece} index={index+6} theme={theme} squares={squares} testid={`6/${rowIndex}`} currentMove={move} />
+			<Square value={squares[index+7]} onSquareClick={() => onSquareClick(index+7)} selectedPiece={selectedPiece} index={index+7} theme={theme} squares={squares} testid={`7/${rowIndex}`} currentMove={move} />
 		</div>
 	);
 }
@@ -111,11 +112,12 @@ function Board({ theme, data, onPlay, onRevert }) {
 			setSelectedPiece(index);
 		}
 		else if (selectedPiece !== null) {
-			const [canBeMoved, doMoveExtra] = gameLogic.canBeMovedExtra(selectedPiece, index, squares);
+			const [canBeMoved, doMoveExtra] = gameLogic.canBeMovedExtra(data.currentMove, selectedPiece, index, squares, 'real');
 			if (canBeMoved) {
 				console.dlog(logrun, 2, "moving piece");
 				nextSquares[selectedPiece] = null;
 				nextSquares[index] = squares[selectedPiece];
+				const oldGameLogic = window._gameLogic; // save data before calling doMoveExtra to restore them afterwards
 				doMoveExtra((i, v) => nextSquares[i] = v);
 				let king;
 				for (let i = 0; i < nextSquares.length; i++)
@@ -124,8 +126,9 @@ function Board({ theme, data, onPlay, onRevert }) {
 						break;
 					}
 				console.dlog(logrun, 2, 'king log', gameLogic.index2pos(king));
-				if (gameLogic.isKingAttacked(king, nextSquares)) {
+				if (gameLogic.isKingAttacked(data.currentMove, king, nextSquares)) {
 					console.dlog(logrun, 2, 'cancelling move, king is attacked');
+					window._gameLogic = oldGameLogic;
 					return;
 				}
 				onPlay(selectedPiece, index, nextSquares);
@@ -134,20 +137,21 @@ function Board({ theme, data, onPlay, onRevert }) {
 		}
 	}
 
-	global.chess.squares = squares;
-	global.chess.history = data.history;
-	global.chess.advanced = data;
+	window.chess.squares = squares;
+	window.chess.history = data.history;
+	window.chess.currentMove = data.currentMove;
+	window.chess.advanced = data;
 
 	return (
 		<div className={styles.board} style={theme.board.style}>
-			<BoardRow index='0' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} theme={theme} />
-			<BoardRow index='1' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} theme={theme} />
-			<BoardRow index='2' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} theme={theme} />
-			<BoardRow index='3' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} theme={theme} />
-			<BoardRow index='4' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} theme={theme} />
-			<BoardRow index='5' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} theme={theme} />
-			<BoardRow index='6' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} theme={theme} />
-			<BoardRow index='7' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} theme={theme} />
+			<BoardRow index='0' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} theme={theme} move={data.currentMove} />
+			<BoardRow index='1' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} theme={theme} move={data.currentMove} />
+			<BoardRow index='2' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} theme={theme} move={data.currentMove} />
+			<BoardRow index='3' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} theme={theme} move={data.currentMove} />
+			<BoardRow index='4' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} theme={theme} move={data.currentMove} />
+			<BoardRow index='5' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} theme={theme} move={data.currentMove} />
+			<BoardRow index='6' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} theme={theme} move={data.currentMove} />
+			<BoardRow index='7' onSquareClick={handleClick} squares={squares} selectedPiece={selectedPiece} theme={theme} move={data.currentMove} />
 		</div>
 	);
 }
@@ -174,9 +178,9 @@ function Game({ theme, data }) {
 		data.setHistory(nextHistory);
 		data.setCurrentMove(nextHistory.length - 1);
 		reRender(Math.random());
-		global.chess.squares = nextSquares;
-		global.chess.history = nextHistory;
-		global.chess.currentMove = data.currentMove;
+		window.chess.squares = nextSquares;
+		window.chess.history = nextHistory;
+		window.chess.currentMove = data.currentMove;
 	}
 
 	function promotePiece(index, piece) {
@@ -200,17 +204,17 @@ function Game({ theme, data }) {
 		reRender(Math.random());
 	}
 
-	// initialize whereCanMove (the global._gameLogic object will be created)
+	// initialize whereCanMove (the window._gameLogic object will be created)
 	useEffect(() => {
-		gameLogic.whereCanMove(Array(64).fill(null), {}, 0, 0);
-		console.adlog(1, 'initialized gameLogic, gameLogic internal data write', global._gameLogic);
+		gameLogic.whereCanMove(0, Array(64).fill(null), {}, 0, 0);
+		console.adlog(1, 'initialized gameLogic, gameLogic internal data write', window._gameLogic);
 		handlePlay(0, 0, data.history[0].squares, true);
 	}, []); // eslint-disable-line react-hooks/exhaustive-deps
 
 	if (!data.history[data.currentMove].squares)
 		return <div>Loading...</div>;
 
-	const checkMate = gameLogic.checkMate((data.history.length % 2) ? 'light' : 'dark', data.history[data.currentMove].squares);
+	const checkMate = gameLogic.checkMate(data.currentMove, (data.history.length % 2) ? 'light' : 'dark', data.history[data.currentMove].squares);
 	if (checkMate) {
 		return (
 			<div className={styles.game} style={theme.game.style}>
@@ -222,9 +226,20 @@ function Game({ theme, data }) {
 
 	return (
 		<div className={styles.game} style={theme.game.style}>
-			<Board theme={theme} data={data} onPlay={handlePlay} onRevert={undoMove} />
-			<div className={styles.unselectable}>{(data.history.length % 2) ? 'White' : 'Black'}&nbsp;to&nbsp;move</div>
-			<Button className={styles.menuButton} onClick={undoMove} variant="contained" color="primary" disabled={data.history.length <= 1}>Undo</Button>
+			<Columns columns={2}>
+				<div key="board">
+					<Board theme={theme} data={data} onPlay={handlePlay} onRevert={undoMove} />
+				</div>
+				<div key="tools">
+					<div className={styles.toolsContainer}>
+						<div className={styles.tools}>
+							<div className={styles.unselectable}>{(data.history.length % 2) ? 'White' : 'Black'}&nbsp;to&nbsp;move</div>
+							<br/>
+							<Button className={styles.menuButton} onClick={undoMove} variant="contained" color="primary" disabled={data.history.length <= 1}>Undo</Button>
+						</div>
+					</div>
+				</div>
+			</Columns>
 			<Dialog open={Boolean(promoting) || (promoting === 0)}>
 				<DialogTitle>Promotion</DialogTitle>
 				<DialogContent><DialogContentText>Please select piece:</DialogContentText></DialogContent>
@@ -243,28 +258,28 @@ function App({ setupData }) {
 	const theme = setupData.theme;
 	const reRender = useState(0)[1];
 
-	global.reredner = global.rr = () => {
+	window.reredner = window.rr = () => {
 		reRender(Math.random());
 		return 're-redner trigerred';
 	};
-	global.sqv = (s) => {
-		global.sqValue = s;
+	window.sqv = (s) => {
+		window.sqValue = s;
 		reRender(Math.random());
-		return `global.sqValue set to ${s} : re-render trigerred`;
+		return `window.sqValue set to ${s} : re-render trigerred`;
 	};
 
-	global.ll = global.loglevel = (s) => {
+	window.ll = window.loglevel = (s) => {
 		if (s) {
-			global.uselog = s;
-			return `global.uselog set to ${s}`;
+			window.uselog = s;
+			return `window.uselog set to ${s}`;
 		}
-		return global.uselog;
+		return window.uselog;
 	};
 
 	for (let logLevel of [1, 2, 3, 4])
-		global[`ll${logLevel}`] = () => global.ll(logLevel);
+		window[`ll${logLevel}`] = () => window.ll(logLevel);
 
-	global.debugLogOption = () => {
+	window.debugLogOption = () => {
 		console.log(`set debug logging:
 @
 	right-click on the object -> store object as global variable
@@ -287,8 +302,8 @@ re-render the game:
 @
 @
 @`, {
-			loglevel: (p) => global.uselog = p,
-			setGlobal: (n, v) => global[n] = v,
+			loglevel: (p) => window.uselog = p,
+			setGlobal: (n, v) => window[n] = v,
 			reRender: () => reRender(Math.random())
 		});
 	};
@@ -317,15 +332,15 @@ function DefaultApp() {
 }
 
 function createHistoryObject(squares) {
-	console.adlog(2, 'creating history object, squares:', squares, '_gameLogic:', global._gameLogic);
-	return { squares: squares, set: { _gameLogic: clone(global._gameLogic) } };
+	console.adlog(2, 'creating history object, squares:', squares, '_gameLogic:', window._gameLogic);
+	return { squares: squares, set: { _gameLogic: clone(window._gameLogic) } };
 }
 
 function restoreFromHistoryObject(obj) {
 	console.adlog(2, 'restoring from history object:', obj);
 	for (const name in obj.set) {
 		console.adlog(3, `restoring historyObj[${JSON.stringify(name)}]:`, obj.set[name]);
-		global[name] = obj.set[name];
+		window[name] = obj.set[name];
 	}
 	return obj.squares;
 }
@@ -342,9 +357,9 @@ class setupData {
 	}
 	theme;
 	constructor(theme) {
-		gameLogic.whereCanMove(Array(64).fill(null), {}, 0, 0); // initialize _gameLogic, if it not exists already
+		gameLogic.whereCanMove(0, Array(64).fill(null), {}, 0, 0); // initialize _gameLogic, if it not exists already
 
-		this.history = [{ squares: Array(64).fill(null), set: { _gameLogic: clone(global._gameLogic) } }];
+		this.history = [{ squares: Array(64).fill(null), set: { _gameLogic: clone(window._gameLogic) } }];
 		this.theme = theme;
 		
 		for (const color of ['light', 'dark']) {
@@ -363,7 +378,7 @@ class setupData {
 			}
 		}
 
-		global.chessSetup = this;
+		window.chessSetup = this;
 	}
 }
 

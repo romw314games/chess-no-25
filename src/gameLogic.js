@@ -8,8 +8,8 @@ function getSquare(squares, x, y) {
 	return squares[pos2index(x, y)];
 }
 
-function whereCanMove(squares, piece, x, y) {
-	if (y === undefined) return whereCanMove(squares, x.x, x.y);
+function whereCanMove(move, squares, piece, x, y, realMove) {
+	if (y === undefined) return whereCanMove(move, squares, x.x, x.y, realMove);
 
 	const result = [];
 
@@ -42,8 +42,8 @@ function whereCanMove(squares, piece, x, y) {
 		}
 	}
 
-	global._gameLogic ??= {};
-	global._gameLogic.whereCanMove ??= {
+	window._gameLogic ??= {};
+	window._gameLogic.whereCanMove ??= {
 		castling: {
 			light: {
 				kingside: true,
@@ -86,20 +86,22 @@ function whereCanMove(squares, piece, x, y) {
 				[1, -1],
 				[-1, -1],
 				[-1, 1]
-			], () => global._gameLogic.whereCanMove.castling[piece.player] = {});
-			if (piece.player === 'light') {
-				const canCastle = global._gameLogic.whereCanMove.castling.light;
-				if (canCastle.kingside && !square(5, 7) && !square(6, 7))
-					add(6, 7, setSquare => {
-						setSquare(pos2index(5, 7), square(7, 7));
-						setSquare(pos2index(7, 7), null);
-					});
-				if (canCastle.queenside && !square(3, 7) && !square(2, 7) && !square(1, 7))
-					add(2, 7, setSquare => {
-						setSquare(pos2index(3, 7), square(0, 7));
-						setSquare(pos2index(0, 7), null);
-					});
-			}
+			], realMove ? (() => window._gameLogic.whereCanMove.castling[piece.player] = { kingside: move, queenside: move }) : () => {});
+			let canCastle = window._gameLogic.whereCanMove.castling[piece.player];
+			for (const castling in canCastle)
+				if (typeof(canCastle[castling]) === 'number')
+					canCastle[castling] = canCastle[castling] > move;
+			const home = (piece.player === 'light') ? 7 : 0;
+			if (canCastle.kingside && !square(5, home) && !square(6, home))
+				add(6, 7, setSquare => {
+					setSquare(pos2index(5, home), square(7, home));
+					setSquare(pos2index(7, home), null);
+				});
+			if (canCastle.queenside && !square(3, home) && !square(2, home) && !square(1, home))
+				add(2, home, setSquare => {
+					setSquare(pos2index(3, home), square(0, home));
+					setSquare(pos2index(0, home), null);
+				});
 			break;
 		case 'queen':
 		case 'rook':
@@ -117,39 +119,40 @@ function whereCanMove(squares, piece, x, y) {
 	return result;
 }
 
-function canBeMovedInternal(selectedPiece, endIndex, squares) {
+function canBeMovedInternal(move, selectedPiece, endIndex, squares, realMove) {
 	if (endIndex === selectedPiece)
 		return [false, null];
 	const type = squares[selectedPiece].name;
 	if (!['pawn', 'knight', 'king', 'rook', 'queen', 'bishop'].includes(type))
 		return [true, () => {}];
 	const pos = index2pos(selectedPiece);
-	const whereCanMoveX = whereCanMove(squares, squares[selectedPiece], pos.x, pos.y);
+	const whereCanMoveX = whereCanMove(move, squares, squares[selectedPiece], pos.x, pos.y, realMove);
 	const moveIndex = whereCanMoveX.map(x => x[0]).indexOf(endIndex);
 	const canMove = moveIndex !== -1;
 	const doMoveExtra = (canMove ? whereCanMoveX[moveIndex] : [null, null])[1];
-	if (global.debug1)
+	if (window.debug1)
 		console.adlog(2, 'can be moved test', { fromPos: pos, from: selectedPiece, to: endIndex, squares: squares, whereCanMove: whereCanMoveX, type: type, canMove: canMove });
 	return [selectedPiece !== null && canMove, doMoveExtra];
 }
 
-const canBeMovedExtra = (from, to, squares) => {
+const canBeMovedExtra = (...args) => {
+	const [,from,,squares] = args;
 	let result;
-	result = squares[from] ? canBeMovedInternal(from, to, squares) : [null, null];
+	result = squares[from] ? canBeMovedInternal(...args) : [null, null];
 	return result;
 }
-const canBeMoved = (from, to, squares) => (canBeMovedExtra(from, to, squares) ?? [])[0];
+const canBeMoved = (...args) => (canBeMovedExtra(...args) ?? [])[0];
 
-function isKingAttacked(kingIndex, squares) {
+function isKingAttacked(move, kingIndex, squares) {
 	for (let i = 0; i < squares.length; i++)
-		if (i !== kingIndex && squares[i] && squares[i].player !== squares[kingIndex].player && canBeMoved(i, kingIndex, squares))
+		if (i !== kingIndex && squares[i] && squares[i].player !== squares[kingIndex].player && canBeMoved(move, i, kingIndex, squares))
 			return true;
 	return false;
 }
 
-const moveCanBePlayed = (from, to, squares, canMove, extra) => {
+const moveCanBePlayed = (move, from, to, squares, canMove, extra) => {
 	if (canMove === undefined)
-		[canMove, extra] = canBeMovedExtra(from, to, squares);
+		[canMove, extra] = canBeMovedExtra(move, from, to, squares);
 	if (typeof(extra) !== 'function')
 		extra = () => {};
 	if (!canMove)
@@ -158,28 +161,30 @@ const moveCanBePlayed = (from, to, squares, canMove, extra) => {
 	console.adlog(4, 'moveCanBePlayed: trySquares log', trySquares);
 	trySquares[from] = null;
 	trySquares[to] = squares[from];
+	const oldGameLogic = window._gameLogic; // save data before calling extra to restore them afterwards
 	extra((i, v) => trySquares[i] = v);
+	window._gameLogic = oldGameLogic;
 	let king;
 	for (let i = 0; i < trySquares.length; i++)
 		if (trySquares[i] && trySquares[i].fullName === `${squares[from].player} king`) {
 			king = i;
 			break;
 		}
-	if (isKingAttacked(king, trySquares))
+	if (isKingAttacked(move, king, trySquares))
 		return false;
 	return true;
 };
 
-const checkMate = (player, squares) => {
+const checkMate = (move, player, squares) => {
 	console.adlog(4, 'MateCheck started: squares:', squares);
 	for (let i = 0; i < squares.length; i++) {
 		console.adlog(4, 'checking square', index2pos(i), squares[i]);
 		if (!squares[i] || squares[i].player !== player)
 			continue;
 		console.adlog(4, 'not skipping');
-		for (const [pos, extra] of whereCanMove(squares, squares[i], index2pos(i).x, index2pos(i).y)) {
+		for (const [pos, extra] of whereCanMove(move, squares, squares[i], index2pos(i).x, index2pos(i).y)) {
 			console.adlog(4, 'checking move', index2pos(i), '->', index2pos(pos));
-			if (moveCanBePlayed(i, pos, squares, true, extra))
+			if (moveCanBePlayed(move, i, pos, squares, true, extra))
 				return false;
 		}
 	}
@@ -189,10 +194,10 @@ const checkMate = (player, squares) => {
 			king = i;
 			break;
 		}
-	return isKingAttacked(king, squares) ? 'checkmate' : 'stalemate';
+	return isKingAttacked(move, king, squares) ? 'checkmate' : 'stalemate';
 };
 
-global.unbug1 = (p) => global.debug1 = p ?? true;
+window.unbug1 = (p) => window.debug1 = p ?? true;
 
 const _internal = { canBeMoved: canBeMovedInternal };
 

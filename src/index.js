@@ -23,11 +23,13 @@ global.catch = (error) => global.error = error;
 const data = new setupData(Theme('dark', getLg));
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-	<ErrorHandler error={global.error}>
-		<DebugRunProvider>
-			<App setupData={data} />
-		</DebugRunProvider>
-	</ErrorHandler>
+	<React.StrictMode>
+		<ErrorHandler error={global.error}>
+			<DebugRunProvider>
+				<App setupData={data} />
+			</DebugRunProvider>
+		</ErrorHandler>
+	</React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function
