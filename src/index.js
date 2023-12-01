@@ -2,11 +2,13 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App, { setupData } from './App';
+import Home, { HomePage, ThemesPage } from './Home';
 import { Theme } from './Theme';
 import { DebugRunProvider, getLg, setLg } from './DebugRunContext';
 import ErrorHandler from './ErrorHandler';
 import './debug';
 import reportWebVitals from './reportWebVitals';
+import { BrowserRouter, Routes, Route, useSearchParams } from 'react-router-dom';
 
 if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
 	console.log(`Welcome to Chess No. 25 debugger console!
@@ -20,17 +22,29 @@ setLg(f => f());
 global.error = null;
 global.catch = (error) => global.error = error;
 
-const theme = new URLSearchParams(window.location.search).get('theme');
-console.adlog(1, 'theme:', theme);
-const data = new setupData(Theme(theme || 'dark', getLg));
+function ThemedApp() {
+	const [params] = useSearchParams();
+	return <App setupData={new setupData(Theme(params.get('theme') || 'dark', getLg))} />;
+}
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
 	<React.StrictMode>
-		<ErrorHandler error={global.error}>
-			<DebugRunProvider>
-				<App setupData={data} />
-			</DebugRunProvider>
-		</ErrorHandler>
+		<BrowserRouter>
+			<Routes>
+				<Route path="/" element={<Home />}>
+					<Route index element={<HomePage />} />
+					<Route path="themes" element={<ThemesPage />} />
+				</Route>
+				<Route path="/play/" element={
+					<ErrorHandler error={global.error}>
+						<DebugRunProvider>
+							<ThemedApp />
+						</DebugRunProvider>
+					</ErrorHandler>
+				} />
+			</Routes>
+		</BrowserRouter>
 	</React.StrictMode>
 );
 

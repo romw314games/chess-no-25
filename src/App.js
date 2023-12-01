@@ -7,6 +7,8 @@ import styles from './App.module.css';
 import { DebugRunContext } from './DebugRunContext';
 import clone from 'just-clone';
 import Columns from 'react-columns';
+import NavBar from './NavBar';
+import { useNavigate } from 'react-router-dom';
 
 function Square({ currentMove, value, onSquareClick, selectedPiece, index, theme, squares, testid }) {
 	const isDark = ((Math.floor(index / 8) % 2) !== (index % 2));
@@ -314,13 +316,15 @@ re-render the game:
 		console.adlog(1, 'set body style to', theme.bodyStyle);
 	}, [theme]);
 
+	const navigate = useNavigate();
+
 	return (
 		<HelmetProvider>
+			<NavBar onNavigate={href => navigate(href)} />
 			<div className={styles.App} style={theme.style} data-testid="app-div">
 				<Helmet>
 					<title>Chess No. 25</title>
 				</Helmet>
-				<h1 className={styles.unselectable}>Chess No. 25</h1>
 				<Game theme={theme} data={setupData} />
 			</div>
 		</HelmetProvider>
