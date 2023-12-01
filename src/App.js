@@ -372,7 +372,7 @@ class setupData {
 
 function ThemedApp() {
 	const [params] = useSearchParams();
-	return <App setupData={new setupData(Theme(params.get('theme') || 'dark', getLg))} navigate={useNavigate()} />;
+	return <App setupData={new setupData(Theme(params.get('theme') ?? 'dark', getLg))} navigate={useNavigate()} />;
 }
 
 function createHistoryObject(squares) {
