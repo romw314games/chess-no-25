@@ -4,6 +4,7 @@ Chess game for two.
 ## Status
 [![CI](https://github.com/romw314/chess-no-25/actions/workflows/node.js.yml/badge.svg)](https://github.com/romw314/chess-no-25/actions/workflows/node.js.yml)
 [![Deploy](https://github.com/romw314/chess-no-25/actions/workflows/react-deploy.yml/badge.svg)](https://github.com/romw314/chess-no-25/actions/workflows/react-deploy.yml)
+[![CodeQL](https://github.com/romw314/chess-no-25/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/romw314/chess-no-25/actions/workflows/github-code-scanning/codeql)
 [![DeepSource](https://app.deepsource.com/gh/romw314/chess-no-25.svg/?label=active+issues&show_trend=false&token=C3QiHXLCjHe6OKzO5dJvC3Rn)](https://app.deepsource.com/gh/romw314/chess-no-25/)
 
 ## Development
