@@ -36,9 +36,9 @@ function whereCanMove(move, squares, piece, x, y, realMove) {
 			let tempX, tempY, count = 0;
 			for ([tempX, tempY] = [x, y]; isValidPosition(tempX, tempY) && ((square(tempX, tempY) === null) || !count); [tempX, tempY, count] = [tempX + dirX, tempY + dirY, count + 1])
 				add(tempX, tempY);
-			console.dlog(getLg(), 4, `testing qm tempresult log 1 / whereCanMove`, { $tempPos: [tempX, tempY], $pos: [x, y], $result: result.map(index2pos).map(obj => [obj.x, obj.y]), result: result, dir: [dirX, dirY] });
+			console.dlog(getLg(), 4, "testing qm tempresult log 1 / whereCanMove", { $tempPos: [tempX, tempY], $pos: [x, y], $result: result.map(index2pos).map(obj => [obj.x, obj.y]), result: result, dir: [dirX, dirY] });
 			addIfEmptyExt(tempX, tempY, isValidPosition(tempX, tempY));
-			console.dlog(getLg(), 3, `testing qm tempresult log 2 / whereCanMove`, { $pos: [x, y], $result: result.map(index2pos).map(obj => [obj.x, obj.y]), result: result, dir: [dirX, dirY] });
+			console.dlog(getLg(), 3, "testing qm tempresult log 2 / whereCanMove", { $pos: [x, y], $result: result.map(index2pos).map(obj => [obj.x, obj.y]), result: result, dir: [dirX, dirY] });
 		}
 	}
 
@@ -114,7 +114,7 @@ function whereCanMove(move, squares, piece, x, y, realMove) {
 			break;
 	}
 
-	console.dlog(getLg(), 3, `whereCanMove: test end`, result);
+	console.dlog(getLg(), 3, "whereCanMove: test end", result);
 
 	return result;
 }

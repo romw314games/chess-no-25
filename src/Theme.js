@@ -11,7 +11,7 @@ function pieceIs(piece, color, name) {
 
 function ThemeData(theme, options = {}) {
 	if (!theme.name && options.validate)
-		console.error(`theme not valid, info`, { theme: theme, this: this, options: options });
+		console.error("theme not valid, info", { theme: theme, this: this, options: options });
 	this.name = theme.name;
 	this.pieces = {
 		light: {},

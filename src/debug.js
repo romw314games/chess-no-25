@@ -3,7 +3,7 @@ import * as gameLogic from './gameLogic';
 
 global.cfdlog ??= console.fdlog ??= (level, ...args) => {
 	if (global.uselog && global.uselog >= level)
-		console.log(...args);
+		{};
 };
 
 console.dlog ??= (...args) => global.cdlog(...args);
