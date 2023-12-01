@@ -333,25 +333,6 @@ function DefaultApp() {
 	return <App setupData={new setupData(Theme('default', useContext(DebugRunContext)))} />;
 }
 
-function ThemedApp() {
-	const [params] = useSearchParams();
-	return <App setupData={new setupData(Theme(params.get('theme') || 'dark', getLg))} navigate={useNavigate()} />;
-}
-
-function createHistoryObject(squares) {
-	console.adlog(2, 'creating history object, squares:', squares, '_gameLogic:', window._gameLogic);
-	return { squares: squares, set: { _gameLogic: clone(window._gameLogic) } };
-}
-
-function restoreFromHistoryObject(obj) {
-	console.adlog(2, 'restoring from history object:', obj);
-	for (const name in obj.set) {
-		console.adlog(3, `restoring historyObj[${JSON.stringify(name)}]:`, obj.set[name]);
-		window[name] = obj.set[name];
-	}
-	return obj.squares;
-}
-
 class setupData {
 	type = "chessdata";
 	history = [];
@@ -387,6 +368,25 @@ class setupData {
 
 		window.chessSetup = this;
 	}
+}
+
+function ThemedApp() {
+	const [params] = useSearchParams();
+	return <App setupData={new setupData(Theme(params.get('theme') || 'dark', getLg))} navigate={useNavigate()} />;
+}
+
+function createHistoryObject(squares) {
+	console.adlog(2, 'creating history object, squares:', squares, '_gameLogic:', window._gameLogic);
+	return { squares: squares, set: { _gameLogic: clone(window._gameLogic) } };
+}
+
+function restoreFromHistoryObject(obj) {
+	console.adlog(2, 'restoring from history object:', obj);
+	for (const name in obj.set) {
+		console.adlog(3, `restoring historyObj[${JSON.stringify(name)}]:`, obj.set[name]);
+		window[name] = obj.set[name];
+	}
+	return obj.squares;
 }
 
 export { setupData, DefaultApp, ThemedApp };
