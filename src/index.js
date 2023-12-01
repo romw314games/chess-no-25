@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App, { setupData } from './App';
+import App, { setupData, ThemedApp } from './App';
 import Home, { HomePage, ThemesPage } from './Home';
 import { Theme } from './Theme';
 import { DebugRunProvider, getLg, setLg } from './DebugRunContext';
@@ -21,11 +21,6 @@ setLg(f => f());
 
 global.error = null;
 global.catch = (error) => global.error = error;
-
-function ThemedApp() {
-	const [params] = useSearchParams();
-	return <App setupData={new setupData(Theme(params.get('theme') || 'dark', getLg))} />;
-}
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

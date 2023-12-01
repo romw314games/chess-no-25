@@ -4,11 +4,11 @@ import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogAc
 import { Theme, getImage } from './Theme';
 import * as gameLogic from './gameLogic.js';
 import styles from './App.module.css';
-import { DebugRunContext } from './DebugRunContext';
+import { DebugRunContext, getLg } from './DebugRunContext';
 import clone from 'just-clone';
 import Columns from 'react-columns';
 import NavBar from './NavBar';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 function Square({ currentMove, value, onSquareClick, selectedPiece, index, theme, squares, testid }) {
 	const isDark = ((Math.floor(index / 8) % 2) !== (index % 2));
@@ -256,7 +256,7 @@ function Game({ theme, data }) {
 	);
 }
 
-function App({ setupData }) {
+function App({ setupData, navigate }) {
 	const theme = setupData.theme;
 	const reRender = useState(0)[1];
 
@@ -316,8 +316,6 @@ re-render the game:
 		console.adlog(1, 'set body style to', theme.bodyStyle);
 	}, [theme]);
 
-	const navigate = useNavigate();
-
 	return (
 		<HelmetProvider>
 			<NavBar onNavigate={href => navigate(href)} />
@@ -333,6 +331,11 @@ re-render the game:
 
 function DefaultApp() {
 	return <App setupData={new setupData(Theme('default', useContext(DebugRunContext)))} />;
+}
+
+function ThemedApp() {
+	const [params] = useSearchParams();
+	return <App setupData={new setupData(Theme(params.get('theme') || 'dark', getLg))} navigate={useNavigate()} />;
 }
 
 function createHistoryObject(squares) {
@@ -386,5 +389,5 @@ class setupData {
 	}
 }
 
-export { setupData, DefaultApp };
+export { setupData, DefaultApp, ThemedApp };
 export default App;
