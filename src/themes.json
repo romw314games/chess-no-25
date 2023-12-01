@@ -1,5 +1,123 @@
 {
 	"themes": {
-		"default": {}
+		"dark": {
+			"fullName": "Dark (default)",
+			"bodyStyle": {
+				"backgroundColor": "black",
+				"color": "white"
+			},
+			"style": {
+				"opacity": "0.8"
+			},
+			"images": "%-default-@.png",
+			"square": {
+				"lightColor": [
+					"#333333",
+					"darkgreen",
+					"orange"
+				],
+				"darkColor": [
+					"#111111",
+					"darkgreen",
+					"darkred"
+				]
+			}
+		},
+		"default": {
+			"fullName": "Standard"
+		},
+		"bw": {
+			"fullName": "Black & White",
+			"bodyStyle": {
+				"backgroundColor": "white",
+				"color": "black"
+			},
+			"square": {
+				"lightColor": [
+					"white",
+					"black",
+					"black"
+				],
+				"darkColor": [
+					"black",
+					"white",
+					"white"
+				]
+			}
+		},
+		"lava": {
+			"fullName": "Lava",
+			"bodyStyle": {
+				"backgroundColor": "red",
+				"color": "white"
+			},
+			"images": "%-default-@.png",
+			"square": {
+				"lightColor": [
+					"orange",
+					"red",
+					"yellow"
+				],
+				"darkColor": [
+					"darkred",
+					"red",
+					"#690000"
+				]
+			}
+		},
+		"secret": {
+			"fullName": "Secret",
+			"images": "%-default-@.png",
+			"square": {
+				"lightColor": [
+					"black",
+					"black",
+					"black"
+				],
+				"darkColor": [
+					"black",
+					"black",
+					"black"
+				]
+			}
+		},
+		"green": {
+			"fullName": "Green",
+			"bodyStyle": {
+				"backgroundColor": "#DDFFDD"
+			},
+			"images": "%-default-@.png",
+			"square": {
+				"lightColor": [
+					"lightgreen",
+					"green",
+					"#CCFFCC"
+				],
+				"darkColor": [
+					"darkgreen",
+					"green",
+					"#003400"
+				]
+			}
+		},
+		"lv": {
+			"fullName": "Lavender & Vanilla",
+			"bodyStyle": {
+				"backgroundColor": "#F3E5AB"
+			},
+			"images": "%-default-@.png",
+			"square": {
+				"lightColor": [
+					"lavender",
+					"violet",
+					"orange"
+				],
+				"darkColor": [
+					"darkviolet",
+					"violet",
+					"darkgreen"
+				]
+			}
+		}
 	}
 }
