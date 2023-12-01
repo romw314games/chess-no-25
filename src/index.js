@@ -1,14 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App, { setupData, ThemedApp } from './App';
+import { ThemedApp } from './App';
 import Home, { HomePage, ThemesPage } from './Home';
-import { Theme } from './Theme';
-import { DebugRunProvider, getLg, setLg } from './DebugRunContext';
+import { DebugRunProvider, setLg } from './DebugRunContext';
 import ErrorHandler from './ErrorHandler';
 import './debug';
 import reportWebVitals from './reportWebVitals';
-import { BrowserRouter, Routes, Route, useSearchParams } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
 	console.log(`Welcome to Chess No. 25 debugger console!
