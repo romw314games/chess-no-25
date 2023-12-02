@@ -118,6 +118,25 @@
 					"darkgreen"
 				]
 			}
+		},
+		"nature": {
+			"fullName": "Nature",
+			"bodyStyle": {
+				"backgroundColor": "lightgreen"
+			},
+			"images": "%-default-@.png",
+			"square": {
+				"lightColor": [
+					"orange",
+					"green",
+					"red"
+				],
+				"darkColor": [
+					"black",
+					"green",
+					"darkred"
+				]
+			}
 		}
 	}
 }
